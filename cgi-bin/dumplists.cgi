@@ -9,41 +9,44 @@
 ##               and then uploads and updated lists
 ##
 ##       AUTHOR: Bgwhite
-##      VERSION: 2014/02/27
+##      VERSION: 2017/01/07
 ##
 ###########################################################################
 
 use strict;
 use warnings;
-use utf8;
-use IPC::Open3;
-use CGI qw(-utf8 :standard);
+use lib
+'/data/project/checkwiki/perl5/perlbrew/perls/perl-5.24.0/lib/site_perl/5.24.0/';
 
-use Getopt::Long
-  qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
+use CGI::Lite;
+use CGI::Carp qw(fatalsToBrowser);
+
 use MediaWiki::API;
 use MediaWiki::Bot;
 
 ###########################################################################
 
-our @myarray;
-our $Error_output;
-our $Error_number;
-our $TMPDIR  = "/data/project/checkwiki/var/tmp/";
-our $bot = MediaWiki::Bot->new(
+my @myarray;
+my $Error_output;
+my $Error_number;
+my $TMPDIR = '/data/project/checkwiki/var/tmp/';
+my $bot    = MediaWiki::Bot->new(
     {
         assert   => 'bot',
-        protocol => 'http',
+        protocol => 'https',
         host     => 'en.wikipedia.org',
+        operator => 'CheckWiki',
     }
 );
 
+my $cgi  = CGI::Lite->new();
+my $data = $cgi->parse_form_data;
 
-$Error_output = param('output');
-$Error_number = param('error');
+$Error_output = $data->{output};
+$Error_number = $data->{error};
 
 if ( $Error_number < 1 and $Error_number > 113 ) {
-    print "No error number given\n\n" ;
+    print "No error number given\n\n";
     die "usage: program --error [NUMBER or all]\n";
 }
 
@@ -51,30 +54,34 @@ if ( $Error_number < 1 and $Error_number > 113 ) {
 ## MAIN ROUTINE
 ###########################################################################
 
-print header(-charset=>'UTF-8');
-print start_html('Simple Script');
+print "Content-type: text/html\n\n";
+print "<!DOCTYPE html>\n";
+print qq{<head>\n<meta charset=\"UTF-8\" />\n};
+print "<title>Check Wikipedia Dumplist</title>\n</head>\n<body>\n";
+print "<pre><p>\n";
+
 get_errors();
 parse_errors();
- 
-print "<pre><p>\n";
-foreach (@myarray) {
-    $_ =~ /\t([^\t]*)\t([^\t]*)\t(.*)$/;
+
+foreach my $line (@myarray) {
+    $line =~ /\t([^\t]*)\t([^\t]*)\t(.*)$/;
     if ( $Error_number eq $1 ) {
-        if ( $Error_output eq "detail" ) {
+        if ( $Error_output eq 'detail' ) {
             my $detail = $3;
-            my $title = $2;
+            my $title  = $2;
             $detail =~ s/</&lt;/g;
-            printf ("'%-60s'%-s'\n", $title, $detail );
-        } elsif ( $Error_output eq "dump" ) {
-            print '# [[' . $2 . "]]\n";
-        } else {
-            print  $2 . "\n";
+            printf {*STDOUT} ( "'%-60s'%-s'\n", $title, $detail );
+        }
+        elsif ( $Error_output eq 'dump' ) {
+            print {*STDOUT} '# [[' . $2 . "]]\n";
+        }
+        else {
+            print {*STDOUT} $2 . "\n";
         }
     }
 }
 
-print "</pre><p>\n";
-print end_html;
+print "</pre>\n</body>\n</html>";
 
 ###########################################################################
 ## GET ERRORS
@@ -82,31 +89,32 @@ print end_html;
 
 sub get_errors {
 
-        my $error = $Error_number;
-        my $page_title;
-        my $filename = $TMPDIR . $error . '.in';
+    my $error = $Error_number;
+    my $page_title;
+    my $filename = $TMPDIR . $error . '.in';
 
-        if ( $error < 10 ) {
-            $page_title = 'Wikipedia:CHECKWIKI/00' . $error . '_dump';
-        }
-        elsif ( $error < 100 and $error > 9) {
-            $page_title = 'Wikipedia:CHECKWIKI/0' . $error . '_dump';
-        }
-        else {
-            $page_title = 'Wikipedia:CHECKWIKI/' . $error . '_dump';
-        }
+    if ( $error < 10 ) {
+        $page_title = 'Wikipedia:CHECKWIKI/00' . $error . '_dump';
+    }
+    elsif ( $error < 100 and $error > 9 ) {
+        $page_title = 'Wikipedia:CHECKWIKI/0' . $error . '_dump';
+    }
+    else {
+        $page_title = 'Wikipedia:CHECKWIKI/' . $error . '_dump';
+    }
 
-        open( my $OUTFILE, ">:encoding(UTF-8)", $filename )
-          or die 'Cannot open temp file ' . $filename . "\n";
+    my $wikitext = $bot->get_text($page_title);
+    my @lines = split( /\n/, $wikitext );
 
-        my $wikitext = $bot->get_text($page_title);
+    open( my $OUTFILE, '>:encoding(UTF-8)', $filename )
+      or die "Cannot open temp file: $filename\n";
 
-        my @lines = split( /\n/, $wikitext );
-        foreach (@lines) {
-            $_ =~ /# \[\[(.*?)\]\]/;
-            print $OUTFILE $1 . "\n";
-        }
-        close($OUTFILE);
+    foreach my $line (@lines) {
+        $line =~ /# \[\[(.*?)\]\]/;
+        print {$OUTFILE} $1 . "\n";
+    }
+    close($OUTFILE)
+      or die "Cannot open temp file: $filename\n";
 
     return ();
 }
