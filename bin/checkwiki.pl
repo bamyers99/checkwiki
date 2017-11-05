@@ -1905,7 +1905,7 @@ sub get_broken_tag {
     my $test_text = lc($text);
 
     if ( $tag_open eq '<ref' ) {
-        $test_text =~ s/<ref name=[^\/]*\/>//sg;
+        $test_text =~ s/<ref\s+name\s*=\s*[^\/>]*\/>//sg;
         $test_text =~ s/<references\s*\/?\s*>//sg;
     }
 
@@ -1929,7 +1929,7 @@ sub get_broken_tag {
 
     if ( $tag_open eq '<ref' ) {
         $test_text = $text;
-        $test_text =~ s/<ref name=[^\/]*\/>//sg;
+        $test_text =~ s/<ref\s+name\s*=\s*[^\/>]*\/>//sg;
         $test_text =~ s/<references\s*\/?\s*>//sg;
         $text_snippet = substr( $test_text, $found, 40 );
     }
