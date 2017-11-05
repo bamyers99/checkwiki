@@ -1,0 +1,11 @@
+#PERL5LIB=/data/project/checkwiki/perl5/perlbrew/perls/perl-5.24.0/lib/site_perl/5.24.0
+#PATH=/data/project/checkwiki/perl5/perlbrew/perls/perl-5.24.0/bin:/data/project/checkwiki/bin:/usr/local/bin:/usr/bin:/bin
+PATH=/data/project/checkwiki/bin:/usr/local/bin:/usr/bin:/bin
+
+01,11,18,25,30,36,42,51 * * * *  /usr/bin/jsub -N live-scan   -once -j y -o /dev/null /data/project/checkwiki/bin/live-scan.pl            -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+03 0 * * *                       /usr/bin/jsub -N delete-done -once -j y -o /dev/null /data/project/checkwiki/bin/delete-done-articles.pl -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+02 0 * * *                       /usr/bin/jsub -N translation -once -j y -o /dev/null /data/project/checkwiki/bin/translation.pl          -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+59,14,29,44 * * * *              /usr/bin/jsub -N update_dump -once -j y -o /dev/null /data/project/checkwiki/bin/update_db.pl            -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+03,33 * * * *                    /usr/bin/jsub -N update_html -once -j y -o /dev/null /data/project/checkwiki/bin/update_html.pl          -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+05 00 * * *                      jlocal /data/project/checkwiki/bin/delay-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+00 00,06,12,18 * * *             jlocal perl /data/project/checkwiki/bin/dump-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
