@@ -74,7 +74,7 @@ our %TranslationLocation = (
     'eowiki'      => 'Projekto:Kontrolu Vikipedion/Tradukado',
     'eswiki'      => 'Wikiproyecto:Check Wikipedia/Translation',
     'fawiki'      => 'ویکی‌پدیا:ویکی‌پروژه_تصحیح_ویکی‌پدیا/ترجمه',
-    'fiwiki'      => 'Wikipedia:Wikiprojekti Check Wikipedia/Translation',
+    'fiwiki'      => 'Wikiprojekti:Check Wikipedia/Translation',
     'frwiki'      => 'Projet:Correction syntaxique/Traduction',
     'fywiki'      =>
               'Meidogger:Stefan Kühn/WikiProject Check Wikipedia/Translation',

@@ -8,10 +8,10 @@
 -- be replaced with the name of the user database.
 
 -- Create Checkwiki database --
-CREATE DATABASE IF NOT EXISTS p50380g50450__checkwiki_p;
+CREATE DATABASE IF NOT EXISTS s51080__checkwiki_p;
 
 -- Connect to database --
-USE p50380g50450__checkwiki_p;
+USE s51080__checkwiki_p;
 
 
 -- Table cw_dumpscan --
@@ -49,11 +49,11 @@ CREATE TABLE IF NOT EXISTS cw_new
 
 -- Table cw_overview --
 CREATE TABLE IF NOT EXISTS cw_overview
-(ID SMALLINT,
+(ID INT,
  Project VARCHAR(20) NOT NULL,
  Lang VARCHAR(100),
- Errors MEDIUMINT,
- Done MEDIUMINT,
+ Errors BIGINT,
+ Done BIGINT,
  Last_Dump VARCHAR(100),
  Last_Update VARCHAR(100),
  Project_Page VARCHAR(400),

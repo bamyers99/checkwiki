@@ -2942,7 +2942,7 @@ sub error_034_template_programming_elements {
         if ( $page_namespace == 0 or $page_namespace == 104 ) {
 
             if ( $text =~
-/({{{|#if:|#ifeq:|#switch:|#ifexist:|{{fullpagename}}|{{sitename}}|{{namespace}}|{{basepagename}}|{{pagename}}|{{subpagename}}|{{subst:)/i
+/(\{\{\{|#if:|#ifeq:|#switch:|#ifexist:|\{\{fullpagename}}|\{\{sitename}}|\{\{namespace}}|\{\{basepagename}}|\{\{pagename}}|\{\{subpagename}}|\{\{subst:)/i
               )
             {
                 my $test_line = substr( $text, $-[0], 40 );

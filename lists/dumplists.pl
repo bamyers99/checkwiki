@@ -41,7 +41,7 @@ my ( $Error_number );
 
 ###########################################################################
 
-$Error_number = param('error')
+$Error_number = param('error');
 
 if ( $Error_number < 1 && $Error_number > 102 ) {
     print "No error number given\n\n" ;
