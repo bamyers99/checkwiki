@@ -2212,7 +2212,8 @@ sub error_003_have_ref {
           if (  $test_text =~ /<[ ]?+references>/
             and $test_text =~ /<[ ]?+\/references>/ );
         $test = 'true' if ( $test_text =~ /<[ ]?+references[ ]?+\/>/ );
-        $test = 'true' if ( $test_text =~ /<[ ]?+references group/ );
+        $test = 'true' if ( $test_text =~ /<[ ]?+references\s+group/ );
+        $test = 'true' if ( $test_text =~ /<[ ]?+references\s+responsive/ );
         $test = 'true' if ( $test_text =~ /\{\{[ ]?+refbegin/ );
         $test = 'true' if ( $test_text =~ /\{\{[ ]?+refend/ );
         $test = 'true' if ( $test_text =~ /\{\{[ ]?+reflist/ );
