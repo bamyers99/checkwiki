@@ -541,7 +541,7 @@ sub delete_done_article_from_db {
 ###########################################################################
 
 sub delete_old_errors_in_db {
-    if ( $Dump_or_Live eq 'live' && $title ne q{} ) {
+    if ( ( $Dump_or_Live eq 'live' or $Dump_or_Live eq 'delay' ) && $title ne q{} ) {
         my $sth = $dbh->prepare(
             'DELETE FROM cw_error WHERE Title = ? AND Project = ?;');
         $sth->execute( $title, $project );
