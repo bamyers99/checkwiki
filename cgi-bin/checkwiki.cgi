@@ -859,6 +859,7 @@ sub get_projects {
         $sth->bind_col( 9, \$dumpdate_sql );
 
     while ( $sth->fetchrow_arrayref ) {
+        my $homepage = get_homepage($project_sql);
 
         # PRINT OUT "PROJECT NUMBER" and "PROJECT" COLUMNS
         $result .= '<tr>' . "\n\n";
@@ -890,16 +891,16 @@ sub get_projects {
         $page_sql =~ tr/ /_/;
         $result .=
             '<td class="table" style="text-align:center;"><a href="https://'
-          . $lang_sql
-          . '.wikipedia.org/wiki/'
+          . $homepage
+          . '/wiki/'
           . $page_sql
           . '">here</a></td>' . "\n";
 
         $trans_sql =~ tr/ /_/;
         $result .=
             '<td class="table" style="text-align:center;"><a href="https://'
-          . $lang_sql
-          . '.wikipedia.org/wiki/'
+          . $homepage
+          . '/wiki/'
           . $trans_sql
           . '">here</a></td>' . "\n";
         $result .= '</tr>' . "\n";
