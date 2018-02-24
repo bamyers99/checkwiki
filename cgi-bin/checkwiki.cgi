@@ -740,7 +740,11 @@ sub check_if_no_params {
 
 sub begin_html {
 
-    print "Content-type: text/html\n\n";
+    print "Content-type: text/html\n";
+    if ( $param_view !~ /^alldone/ ) {
+    	print "Access-Control-Allow-Origin: *\n";    	
+    }
+    print "\n";
     print "<!DOCTYPE html>\n";
     print qq{<html lang="$lang">\n};
     print qq{<head>\n<meta charset=\"UTF-8\" />\n};
