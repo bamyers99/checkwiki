@@ -873,9 +873,13 @@ sub delay_scan {
             operator => 'CheckWiki',
         }
     );
+    
+    # Recheck 500 articles that are over 1 month old
+    my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT DISTINCT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? LIMIT 500;');
+    $sth->execute($project);
 
     # Get titles gathered from live_scan.pl
-    my $sth = $dbh->prepare('SELECT Title FROM cw_new WHERE Project = ?;');
+    $sth = $dbh->prepare('SELECT Title FROM cw_new WHERE Project = ?;');
     $sth->execute($project);
 
     $sth->bind_col( 1, \$title_sql );
@@ -899,6 +903,8 @@ sub delay_scan {
             # Article may have been deleted or an empty title
             if ( defined($text) ) {
                 check_article();
+            } else {
+            	delete_old_errors_in_db(); # delete errors for deleted article
             }
         }
     }

@@ -93,9 +93,12 @@ sub retrieveArticles {
             operator => 'CheckWiki',
         }
     );
+    
+    my $maxcalls = 1;
+    if ($project eq 'enwiki' or $project eq 'dewiki') {$maxcalls = 2;} # Changes are getting missed, so do 2 queries
 
     my @rc = $bot->recentchanges(
-        { ns => $page_namespace, limit => $Limit{$project} } );
+        { ns => $page_namespace, limit => $Limit{$project} }, { max => $maxcalls } );
     foreach my $hashref (@rc) {
         push( @Titles, $hashref->{title} );
     }
@@ -110,12 +113,11 @@ sub retrieveArticles {
 sub insert_db {
     my ($project) = @_;
     my $null = undef;
+    my $sth = $dbh->prepare(
+        'INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);')
+      or die "Can not prepare statement: $DBI::errstr\n";
 
     foreach my $title (@Titles) {
-
-        my $sth = $dbh->prepare(
-            'INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);')
-          or die "Can not prepare statement: $DBI::errstr\n";
         $sth->execute( $project, $title )
           or die "Cannot execute: $sth->errstr\n";
     }
