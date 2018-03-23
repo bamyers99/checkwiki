@@ -875,7 +875,7 @@ sub delay_scan {
     );
     
     # Recheck 500 articles that are over 1 month old
-    my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT DISTINCT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? LIMIT 500;');
+    my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT DISTINCT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 500;');
     $sth->execute($project);
 
     # Get titles gathered from live_scan.pl
