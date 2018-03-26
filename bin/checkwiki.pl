@@ -874,7 +874,7 @@ sub delay_scan {
         }
     );
     
-    # Recheck 2500 articles that are over 1 month old, no DISTINCT because it changed sort order
+    # Recheck 2500 articles that are over 1 month old, no DISTINCT because it changes sort order
     my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 2500;');
     $sth->execute($project);
 
