@@ -157,8 +157,9 @@ sub get_projects {
 
 sub FindLatestDump {
 
+    # the 2 is in the file search to weed out the 'latest' directory which sorts last
     my @Filenames =
-      </public/dumps/public/$project/*/$project-*-pages-articles.xml.bz2>;
+      </public/dumps/public/$project/2*/$project-*-pages-articles.xml.bz2>;
     if ( !@Filenames ) {
         return undef;
     }
