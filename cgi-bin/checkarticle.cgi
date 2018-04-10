@@ -42,7 +42,7 @@ $article =~ tr/_/ /;
 
 if ( $article ne q{''} ) {
     @myarray =
-`/usr/bin/perl /data/project/checkwiki/bin/checkwiki.pl.new --load article  --article "$article" -c /data/project/checkwiki/checkwiki.cfg --project $project`;
+`/usr/bin/perl /data/project/checkwiki/bin/checkwiki.pl --load article  --article "$article" -c /data/project/checkwiki/checkwiki.cfg --project $project`;
 }
 
 print "Content Type: text/html; charset=UTF-8\n\n";
