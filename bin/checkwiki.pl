@@ -3766,11 +3766,11 @@ sub error_064_link_equal_linktext {
 
         # [[Foo|foo]] --> [[Foo|Foo]]
         $temp_text =~
-          s/\[\[([^|\]]*)\s*\|\s*(\p{Lowercase_Letter})/\[\[$1\|\u$2/g;
+          s/\[\[(\p{Letter}[^|\]]*)\s*\|\s*(\p{Lowercase_Letter})/\[\[$1\|\u$2/g;
 
         # [[Foo|"foo"]] --> [[Foo|''Foo'']]
         $temp_text =~
-s/\[\[([^|\]]*)\|([$CHARACTERS_064]+)\s*(\p{Lowercase_Letter})/\[\[$1\|$2\u$3/og;
+s/\[\[(\p{Letter}[^|\]]*)\|([$CHARACTERS_064]+)\s*(\p{Lowercase_Letter})/\[\[$1\|$2\u$3/og;
     }
 
     # Account for [[Foo|Foo]]
