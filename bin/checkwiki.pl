@@ -2061,7 +2061,7 @@ sub error_check {
         #error_035                                         # DEACTIVATED
         error_036_redirect_not_correct() if ( $ErrorPriority[36] > 0 );
         error_037_title_with_special_letter_and_no_defaultsort()
-          if ( $ErrorPriority[34] > 0 );
+          if ( $ErrorPriority[37] > 0 );
         error_038_html_element_italic()    if ( $ErrorPriority[38] > 0 );
         error_039_html_element_paragraph() if ( $ErrorPriority[39] > 0 );
         error_040_html_element_font()      if ( $ErrorPriority[40] > 0 );
