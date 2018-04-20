@@ -1451,7 +1451,7 @@ sub get_templates_all {
 
     # Delete all breaks --> only one line
     # Delete all tabs --> better for output
-    $test_text =~ s/[\n\t]//g;
+    $test_text =~ s/[\n\t]+/ /g;
 
     if ( $text =~ /\{\{/g ) {    # Article may not have a template.
         $TTnumber++;
@@ -1474,9 +1474,9 @@ sub get_templates_all {
             $temp_text_2 =
               q{ } . substr( $temp_text, 0, pos($temp_text) ) . q{ };
 
-            # Test the number of {{ and  }}
-            $brackets_begin = ( $temp_text_2 =~ tr/{{/{{/ );
-            $brackets_end   = ( $temp_text_2 =~ tr/}}/}}/ );
+            # Test the number of {{ and }}; do not use tr/// - that does character by character transliteration
+            $brackets_begin = ( $temp_text_2 =~ s/\{\{/\{\{/g );
+            $brackets_end   = ( $temp_text_2 =~ s/\}\}/\}\}/g );
 
             last if ( $brackets_begin == $brackets_end );
         }
