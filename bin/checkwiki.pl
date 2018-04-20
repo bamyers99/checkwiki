@@ -1715,8 +1715,8 @@ sub get_links {
 
                 $string_2 = substr( $string, 0, pos($string) );
 
-                $brackets_begin = ( $string_2 =~ tr/[/[/ );
-                $brackets_end   = ( $string_2 =~ tr/]/]/ );
+                $brackets_begin = ( $string_2 =~ s/\[\[/\[\[/g );
+                $brackets_end   = ( $string_2 =~ s/\]\]/\]\]/g );
 
                 last if ( $brackets_begin == $brackets_end );
             }
