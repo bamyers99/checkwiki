@@ -129,6 +129,7 @@ my @REGEX_078;
 my $CHARACTERS_064;
 my @REGEX_085;
 my @REGEX_112;
+my $REGEX_REFERENCESTUB;
 
 ##############################
 ##  Wiki-special variables
@@ -269,6 +270,10 @@ push @REGEX_112, qr/[; ]-webkit-/;
 push @REGEX_112, qr/[; ]-ms-/;
 push @REGEX_112, qr/[; ]data-cx-weight/;
 push @REGEX_112, qr/[; ]contenteditable/;
+
+# This uses possessive quantifier *+ which doesn't do any backtracking
+$REGEX_REFERENCESTUB = qr/<ref(?:(?:\s+\w+(?:\s*=\s*(?:"[^"]*+"|'[^']*+'|[^'">\s]+))?)+\s*|\s*)\/>/;
+
 
 ###############################
 ## Variables for one article
@@ -1911,7 +1916,7 @@ sub get_broken_tag {
     my $test_text = lc($text);
 
     if ( $tag_open eq '<ref' ) {
-        $test_text =~ s/<ref\s+name\s*=\s*[^\/>]*\/>//sg;
+        $test_text =~ s/$REGEX_REFERENCESTUB//sg;
         $test_text =~ s/<references\s*\/?\s*>//sg;
     }
 
@@ -1935,7 +1940,7 @@ sub get_broken_tag {
 
     if ( $tag_open eq '<ref' ) {
         $test_text = $text;
-        $test_text =~ s/<ref\s+name\s*=\s*[^\/>]*\/>//sg;
+        $test_text =~ s/$REGEX_REFERENCESTUB//sg;
         $test_text =~ s/<references\s*\/?\s*>//sg;
         $text_snippet = substr( $test_text, $found, 40 );
     }
@@ -1959,7 +1964,7 @@ sub get_broken_tag_closing {
     my $test_text = lc($text);
 
     if ( $tag_open eq '<ref' ) {
-        $test_text =~ s/<ref name=[^\/]*\/>//sg;
+        $test_text =~ s/$REGEX_REFERENCESTUB//sg;
         $test_text =~ s/<references\s*\/?\s*>//sg;
     }
 
@@ -4564,6 +4569,13 @@ sub error_094_ref_no_correct_match {
 
     my $ref_begin = () = $lc_text =~ /<ref\b[^<>]*(?<!\/)>/g;
     my $ref_end   = () = $lc_text =~ /<\/ref>/g;
+    
+    if ( $ref_begin != $ref_end ) {
+        # Do a slower search, gets rid of stubs, works if < or > in ref name
+        my $temp_text = $lc_text;
+        $temp_text =~ s/$REGEX_REFERENCESTUB//sg;
+        $ref_begin = () = $temp_text =~ /<ref\b/g;
+    }    
 
     if ( $ref_begin != $ref_end ) {
         if ( $ref_begin > $ref_end ) {
