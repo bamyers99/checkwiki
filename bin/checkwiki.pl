@@ -958,7 +958,7 @@ sub check_article {
     # CALLS #013
     get_math();
 
-    # REMOVES FROM $text ANY CONTENT BETWEEN <ce> </ce> TAGS.
+    # REMOVES FROM $text ANY CONTENT BETWEEN <ce> </ce> and <chem> </chem> TAGS.
     get_ce();
 
     # REMOVE FROM $text ANY CONTENT BETWEEN <hiero> TAGS.
@@ -1129,12 +1129,13 @@ sub get_math {
 }
 
 ###########################################################################
-## FIND MISSING CE TAGS AND REMOVE EVERYTHING BETWEEN THE TAGS
+## FIND MISSING CE/CHEM TAGS AND REMOVE EVERYTHING BETWEEN THE TAGS
 ###########################################################################
 
 sub get_ce {
 
     $text =~ s/<ce(.*?)<\/ce>/<ce>CheckWiki<\/ce>/sgi;
+    $text =~ s/<chem(.*?)<\/chem>/<chem>CheckWiki<\/chem>/sgi;
 
     return ();
 }
