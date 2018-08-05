@@ -608,6 +608,7 @@ sub readMetadata {
             || $ServerName =~ s/^([[:lower:]]+)wikisource$/$1.wikisource.org/
             || $ServerName =~ s/^([[:lower:]]+)wikiversity$/$1.wikiversity.org/
             || $ServerName =~ s/^([[:lower:]]+)wiktionary$/$1.wiktionary.org/
+            || $ServerName =~ s/^([[:lower:]]+)wikivoyage$/$1.wikivoyage.org/
         )
       )
     {
