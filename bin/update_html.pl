@@ -188,6 +188,7 @@ sub get_projects {
             $output[$i] = q{} unless defined $output[$i];
             $i++;
         }
+    	my $homepage = get_homepage($output[1]);
 
         # PRINT OUT "PROJECT NUMBER" and "PROJECT" COLUMNS
         $result .= '<tr>' . "\n";
@@ -233,22 +234,47 @@ sub get_projects {
         $output[5] =~ tr/ /_/;
         $result .=
 '<td class="table" style="text-align:center;"><a href="https://'
-          . $output[4]
-          . '.wikipedia.org/wiki/'
+          . $homepage
+          . '/wiki/'
           . $output[5]
           . '">here</a></td>' . "\n";
 
         $output[6] =~ tr/ /_/;
         $result .=
 '<td class="table" style="text-align:center;"><a href="https://'
-          . $output[4]
-          . '.wikipedia.org/wiki/'
+          . $homepage
+          . '/wiki/'
           . $output[6]
           . '">here</a></td>' . "\n";
         $result .= '</tr>' . "\n";
 
     }
     $result .= '</table>' . "\n\n";
+
+    return ($result);
+}
+
+###########################################################################
+
+sub get_homepage {
+    my ($result) = @_;
+
+    if (
+        !(
+               $result =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
+            || $result =~ s/^commonswiki$/commons.wikimedia.org/
+            || $result =~ s/^([[:lower:]]+)wiki$/$1.wikipedia.org/
+            || $result =~ s/^([[:lower:]]+)wikisource$/$1.wikisource.org/
+            || $result =~ s/^([[:lower:]]+)wikiversity$/$1.wikiversity.org/
+            || $result =~ s/^([[:lower:]]+)wiktionary$/$1.wiktionary.org/
+            || $result =~ s/^([[:lower:]]+)wikivoyage$/$1.wikivoyage.org/
+        )
+      )
+    {
+        die(    'Could not calculate server name for project'
+              . $result
+              . "\n" );
+    }
 
     return ($result);
 }
