@@ -314,17 +314,17 @@ sub load_text_translation {
     $input_text =
       get_translation_text( $translation_input, 'start_text_' . $project . '=',
         'END' );
-    $StartText = $input_text if ( $input_text ne q{} );
+    $StartText = $input_text;
 
     # description_text
     $input_text = get_translation_text( $translation_input,
         'description_text_' . $project . '=', 'END' );
-    $DescriptionText = $input_text if ( $input_text ne q{} );
+    $DescriptionText = $input_text;
 
     # category_text
     $input_text =
       get_translation_text( $translation_input, 'category_001=', 'END' );
-    $CategoryText = $input_text if ( $input_text ne q{} );
+    $CategoryText = $input_text;
 
     # priority
     $input_text = get_translation_text( $translation_input,
