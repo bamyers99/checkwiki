@@ -28,7 +28,7 @@ use POSIX qw(strftime);
 
 use Business::ISBN qw( valid_isbn_checksum );
 use MediaWiki::API;
-use MediaWiki::Bot;
+# use MediaWiki::Bot; does not support rvslots API parameter
 
 #THESE TWO ARE LOADED AT RUNTIME BY IF STATEMENT JUST AFTER COMMAND-LINE ARE FOUND
 #SPEEDS UP STARTUP
@@ -51,6 +51,7 @@ my $project     = q{};     # Name of the project 'dewiki'
 my $end_of_dump = q{};     # When last article from dump reached
 my $artcount    = 0;       # Number of articles processed
 my $file_size   = 0;       # How many MB of the dump has been processed.
+my $mediawiki_api;
 
 # Database configuration
 my $DbName;
@@ -751,7 +752,6 @@ sub scan_pages {
         }
     }
 
-    elsif ( $Dump_or_Live eq 'live' )    { live_scan(); }
     elsif ( $Dump_or_Live eq 'delay' )   { delay_scan(); }
     elsif ( $Dump_or_Live eq 'list' )    { list_scan(); }
     elsif ( $Dump_or_Live eq 'article' ) { article_scan(); }
@@ -767,18 +767,11 @@ sub scan_pages {
 sub article_scan {
 
     $page_namespace = 0;
-    my $bot = MediaWiki::Bot->new(
-        {
-            assert   => 'bot',
-            protocol => 'https',
-            host     => $ServerName,
-            operator => 'CheckWiki',
-        }
-    );
+    $mediawiki_api = new_api();
 
     set_variables_for_article();
     utf8::decode($ArticleName);
-    $text = $bot->get_text($ArticleName);
+    $text = api_get_text($ArticleName);
     if ( defined($text) ) {
         check_article();
     }
@@ -793,14 +786,7 @@ sub article_scan {
 sub list_scan {
 
     $page_namespace = 0;
-    my $bot = MediaWiki::Bot->new(
-        {
-            assert   => 'bot',
-            protocol => 'https',
-            host     => $ServerName,
-            operator => 'CheckWiki',
-        }
-    );
+    $mediawiki_api = new_api();
 
     if ( !defined($ListFilename) ) {
         die "The filename of the list was not defined\n";
@@ -816,43 +802,7 @@ sub list_scan {
     foreach my $row (@articles) {
         set_variables_for_article();
         $title = $row;
-        $text  = $bot->get_text($title);
-        if ( defined($text) ) {
-            check_article();
-        }
-    }
-
-    return ();
-}
-
-###########################################################################
-## CHECK ARTICLES VIA A LIVE SCAN
-###########################################################################
-
-sub live_scan {
-
-    my @live_titles;
-    my $limit = 500;    # 500 is the max mediawiki allows
-    $page_namespace = 0;
-
-    my $bot = MediaWiki::Bot->new(
-        {
-            assert   => 'bot',
-            protocol => 'https',
-            host     => $ServerName,
-            operator => 'CheckWiki',
-        }
-    );
-
-    my @rc = $bot->recentchanges( { ns => $page_namespace, limit => $limit } );
-    foreach my $hashref (@rc) {
-        push( @live_titles, $hashref->{title} );
-    }
-
-    foreach (@live_titles) {
-        set_variables_for_article();
-        $title = $_;
-        $text  = $bot->get_text($title);
+    	$text = api_get_text($ArticleName);
         if ( defined($text) ) {
             check_article();
         }
@@ -871,14 +821,7 @@ sub delay_scan {
     my $title_sql;
     $page_namespace = 0;
 
-    my $bot = MediaWiki::Bot->new(
-        {
-            assert   => 'bot',
-            protocol => 'https',
-            host     => $ServerName,
-            operator => 'CheckWiki',
-        }
-    );
+    $mediawiki_api = new_api();
     
     # Recheck 2500 articles that are over 1 month old, no DISTINCT because it changes the sort order
     my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 2500;');
@@ -902,7 +845,7 @@ sub delay_scan {
         set_variables_for_article();
         $title = $_;
         if ( $title ne q{} ) {
-            $text = $bot->get_text($title);
+    	    $text = api_get_text($ArticleName);
             printf( "  %7d articles done\n", $artcount )
               if ++$artcount % 500 == 0;
 
@@ -5192,6 +5135,41 @@ sub usage {
       . "$0 -p dewiki --load new/done/dump/last_change/old\n";
 
     return ();
+}
+
+#######################################################################
+
+sub new_api {
+	$mediawiki_api      = MediaWiki::API->new({
+        max_lag         => 5,
+        max_lag_delay   => 5,
+        max_lag_retries => 5,
+        retries         => 5,
+        retry_delay     => 10, # no infinite loops
+        use_http_get    => 1,  # use HTTP GET to make certain requests cacheable
+        api_url         => "https://$ServerName/w/api.php"
+    });
+    
+    $mediawiki_api->{ua}->agent('CheckWiki');
+}
+
+#######################################################################
+
+sub api_get_text {
+    my ( $pagename ) = @_;
+	my $hash = {
+        action => 'query',
+        titles => $pagename,
+        prop   => 'revisions',
+        rvprop => 'content',
+        rvslots=> 'main'
+    };
+
+    my $res = $mediawiki_api->api($hash);
+    my ($id, $data) = %{ $res->{query}->{pages} };
+
+    return if $id == -1; # PAGE_NONEXISTENT
+    return $data->{revisions}[0]->{slots}->{main}->{'*'}; # the wikitext
 }
 
 ###########################################################################

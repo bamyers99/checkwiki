@@ -780,7 +780,7 @@ sub raw_text {
       . $servername
       . '/w/api.php?action=query&prop=revisions&titles='
       . $title
-      . '&rvprop=timestamp|content&format=xml';
+      . '&rvslots=main&rvprop=timestamp|content&format=xml';
 
     my $response2;
     uri_escape_utf8($url);
