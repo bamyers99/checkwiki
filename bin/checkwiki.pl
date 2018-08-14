@@ -767,7 +767,7 @@ sub scan_pages {
 sub article_scan {
 
     $page_namespace = 0;
-    $mediawiki_api = new_api();
+    new_api();
 
     set_variables_for_article();
     utf8::decode($ArticleName);
@@ -786,7 +786,7 @@ sub article_scan {
 sub list_scan {
 
     $page_namespace = 0;
-    $mediawiki_api = new_api();
+    new_api();
 
     if ( !defined($ListFilename) ) {
         die "The filename of the list was not defined\n";
@@ -821,7 +821,7 @@ sub delay_scan {
     my $title_sql;
     $page_namespace = 0;
 
-    $mediawiki_api = new_api();
+    new_api();
     
     # Recheck 2500 articles that are over 1 month old, no DISTINCT because it changes the sort order
     my $sth = $dbh->prepare('INSERT IGNORE INTO cw_new SELECT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 2500;');
