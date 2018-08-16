@@ -21,6 +21,7 @@ use warnings;
 use lib '/data/project/checkwiki/perl/lib/perl5';
 
 use DBI;
+use Carp;
 use DBD::mysql;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
@@ -5166,10 +5167,20 @@ sub api_get_text {
     };
 
     my $res = $mediawiki_api->api($hash);
+    return _handle_api_error() unless $res;
     my ($id, $data) = %{ $res->{query}->{pages} };
 
     return if $id == -1; # PAGE_NONEXISTENT
     return $data->{revisions}[0]->{slots}->{main}->{'*'}; # the wikitext
+}
+
+sub _handle_api_error {
+    carp 'Error code '
+        . $mediawiki_api->{error}->{code}
+        . ': '
+        . $mediawiki_api->{error}->{details};
+
+    return undef;
 }
 
 ###########################################################################
