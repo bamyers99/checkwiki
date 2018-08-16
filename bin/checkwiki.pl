@@ -5168,6 +5168,8 @@ sub api_get_text {
 
     my $res = $mediawiki_api->api($hash);
     return _handle_api_error() unless $res;
+    use Dumpvalue;
+    Dumpvalue->new->dumpValue( $res );
     my ($id, $data) = %{ $res->{query}->{pages} };
 
     return if $id == -1; # PAGE_NONEXISTENT
