@@ -803,7 +803,7 @@ sub list_scan {
     foreach my $row (@articles) {
         set_variables_for_article();
         $title = $row;
-    	$text = api_get_text($ArticleName);
+    	$text = api_get_text($title);
         if ( defined($text) ) {
             check_article();
         }
@@ -846,7 +846,7 @@ sub delay_scan {
         set_variables_for_article();
         $title = $_;
         if ( $title ne q{} ) {
-    	    $text = api_get_text($ArticleName);
+    	    $text = api_get_text($title);
             printf( "  %7d articles done\n", $artcount )
               if ++$artcount % 500 == 0;
 
@@ -5168,8 +5168,6 @@ sub api_get_text {
 
     my $res = $mediawiki_api->api($hash);
     return _handle_api_error() unless $res;
-    use Dumpvalue;
-    Dumpvalue->new->dumpValue( $res );
     my ($id, $data) = %{ $res->{query}->{pages} };
 
     return if $id == -1; # PAGE_NONEXISTENT
