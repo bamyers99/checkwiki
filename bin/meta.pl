@@ -2,7 +2,7 @@
 
 ###########################################################################
 ##
-##         FILE: translation.pl
+##         FILE: meta.pl
 ##
 ##        USAGE: ./meta.pl -c checkwiki.cfg
 ##
@@ -179,9 +179,17 @@ foreach (@Projects) {
 
     foreach my $value ( @{$Defaultsort} ) {
         my $sth = $dbh->prepare(
-'INSERT IGNORE INTO cw_meta (project, templates, metaparam ) VALUES (?, ?, ?)'
+			'INSERT IGNORE INTO cw_meta (project, templates, metaparam ) VALUES (?, ?, ?)'
         );
         $sth->execute( $project, $value, 'magicword_defaultsort' )
+          or die "Cannot execute: " . $sth->errstr . "\n";
+    }
+    
+    if ( exists $res->{query}->{general}->{rtl} ) {
+        my $sth = $dbh->prepare(
+			'INSERT IGNORE INTO cw_meta (project, templates, metaparam ) VALUES (?, ?, ?)'
+        );
+        $sth->execute( $project, '1', 'rtl_text_dir' )
           or die "Cannot execute: " . $sth->errstr . "\n";
     }
 

@@ -107,6 +107,7 @@ my @Template_regex;         # Template regex fron translation file
 my $IMAGE_REGEX;            # Regex used in get_images()
 my $Cat_regex = q{};        # Regex used in get_categories()
 my $REGEX_095;              # Regex used in error_095_user_signature();
+my $rtl_text_dir = 0;       # Set to 1 if rtl_text_dir metadata record is present
 
 my @Magicword_defaultsort;
 
@@ -644,6 +645,9 @@ sub readMetadata {
         }
         elsif ( $value[0] eq 'draft_regex' ) {
             $draft_regex = $value[1];
+        }
+        elsif ( $value[0] eq 'rtl_text_dir' ) {
+            $rtl_text_dir = 1;
         }
     }
 
@@ -2649,18 +2653,22 @@ sub error_022_category_with_space {
     my $error_code = 22;
 
     foreach my $i ( 0 .. $Category_counter ) {
+    	
+    	my $cat_value;
+    	if ($rtl_text_dir) {$cat_value = reverse $Category[$i][4];}
+    	else {$cat_value = $Category[$i][4];}
 
         # SOME WIKIS HAVE COLONS IN THEIR CAT NAMES, REMOVE LAST ONE
-        my $total = $Category[$i][4] =~ tr/:/:/;
+        my $total = $cat_value =~ tr/:/:/;
         if ( $total > 1 ) {
-            my $last_colon = rindex( $Category[$i][4], q{:} );
-            $Category[$i][4] = substr( $Category[$i][4], 0, $last_colon );
+            my $last_colon = rindex( $cat_value, q{:} );
+            $cat_value = substr( $cat_value, 0, $last_colon );
         }
 
-        if (   $Category[$i][4] =~ /[^ |]\s+\]\]$/
-            or $Category[$i][4] =~ /\[\[ /
-            or $Category[$i][4] =~ / \|/
-            or $Category[$i][4] =~ /\[\[($Cat_regex)\s+:|:\s+/ )
+        if (   $cat_value =~ /[^ |]\s+\]\]$/
+            or $cat_value =~ /\[\[ /
+            or $cat_value =~ / \|/
+            or $cat_value =~ /\[\[($Cat_regex)\s+:|:\s+/ )
         {
             error_register( $error_code, $Category[$i][4] );
         }
