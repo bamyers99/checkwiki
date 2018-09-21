@@ -887,6 +887,17 @@ sub check_article {
     # CALLS #23
     get_nowiki();
 
+    # The next two calls must be here because they strip templates ie. {{code}}
+    # CREATES @Templates_all - USED IN #12, #31
+    # CALLS #43
+    get_templates_all();
+
+    # DOES TEMPLATETIGER
+    # USES @Templates_all
+    # CREATES @template - USED IN #59, #60
+
+    get_template();
+
     # REMOVES FROM $text ANY CONTENT BETWEEN <pre> </pre> TAGS.
     # CALLS #24
     get_pre();
@@ -932,16 +943,6 @@ sub check_article {
     if ( $ErrorPriority[81] > 0 ) {
         get_ref();
     }
-
-    # CREATES @Templates_all - USED IN #12, #31
-    # CALLS #43
-    get_templates_all();
-
-    # DOES TEMPLATETIGER
-    # USES @Templates_all
-    # CREATES @template - USED IN #59, #60
-
-    get_template();
 
     # CREATES @Links_all & @Images_all-USED IN #65, #66, #67, #68, #74, #76, #82
     # CALLS #10
