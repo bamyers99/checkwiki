@@ -1405,10 +1405,6 @@ sub get_templates_all {
     my $test_text   = $text;
     my $found_error = 0;
 
-    # Delete all breaks --> only one line
-    # Delete all tabs --> better for output
-    $test_text =~ s/[\n\t]+/ /g;
-
     if ( $text =~ /\{\{/g ) {    # Article may not have a template.
         $TTnumber++;
     }
@@ -1445,6 +1441,10 @@ sub get_templates_all {
         }
         elsif ( $found_error == 0 ) {
             my $begin_string = substr( $temp_text, 0, 40 );
+            # Delete all breaks --> only one line
+            # Delete all tabs --> better for output
+            $begin_string =~ s/[\n\t]+/ /g;
+            
             $found_error++;
             if ( $project ne 'ruwiki' and $project ne 'ukwiki' ) {
                 error_043_template_no_correct_end($begin_string);
@@ -1475,6 +1475,11 @@ sub get_template {
     foreach my $current_template (@Templates_all) {
 
         my $orig_template = $current_template;
+
+        # Delete all breaks --> only one line
+        # Delete all tabs --> better for output
+        $current_template =~ s/[\n\t]+/ /g;
+    
         $current_template =~ s/^\{\{//;
         $current_template =~ s/\}\}$//;
         $current_template =~ s/^ //g;
