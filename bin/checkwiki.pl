@@ -1473,6 +1473,7 @@ sub get_template {
     my $output                = q{};
     foreach my $current_template (@Templates_all) {
 
+        my $orig_template = $current_template;
         $current_template =~ s/^\{\{//;
         $current_template =~ s/\}\}$//;
         $current_template =~ s/^ //g;
@@ -1506,6 +1507,19 @@ sub get_template {
             }
             if ( index( $template_name, q{  } ) > -1 ) {
                 $template_name =~ tr/  / /s;
+            }
+            
+            # Check for templates to strip
+            if ( $Template_list[43][0] ne '-9999' ) {
+            	my $lc_template_name = lc( $template_name );
+            	
+            	foreach my $strip_template ( @{$Template_list[43]} ) {
+            		if ( $strip_template eq $lc_template_name ) {
+            			$text =~ s/\Q$orig_template\E//s;
+            			my $lc_template = lc( $orig_template );
+            			$lc_text =~ s/\Q$lc_template\E//s;
+            		}
+            	}
             }
 
             shift(@template_split);
@@ -2186,15 +2200,16 @@ sub error_003_have_ref {
             }
         }
 
-        if ( $Template_list[$error_code][0] ne '-9999' ) {
+        if ( $test eq 'false' and $Template_list[$error_code][0] ne '-9999' ) {
 
             foreach my $regex (@REGEX_003) {
                 if ( $test_text =~ /$regex/ ) {
                     $test = 'true';
-                    next;
+                    last;
                 }
             }
         }
+
         if ( $test eq 'false' ) {
             error_register( $error_code, q{} );
         }
@@ -2803,9 +2818,11 @@ sub error_028_table_no_correct_end {
                 foreach my $temp (@codes) {
                     if ( index( $lc_text, $temp ) > -1 ) {
                         $test = 'true';
+                        last;
                     }
                 }
             }
+
             if ( $test eq 'false' ) {
                 error_register( $error_code, $comment );
             }
@@ -3629,7 +3646,7 @@ sub error_061_reference_with_punctuation {
     my $pos        = -1;
 
     # Not sure about elipse (...).  "{1,2}[^\.]" to not check for them
-    # Space after !, otherwise will catch false-poistive from tables
+    # Space after !, otherwise will catch false-positive from tables
     if ( $lc_text =~ /<\/ref>[ ]{0,2}(\.{1,2}[^.]|[,?:;]|! )/ ) {
         error_register( $error_code, substr( $text, $-[0], 40 ) );
     }
@@ -3641,13 +3658,9 @@ sub error_061_reference_with_punctuation {
 
         foreach my $regex (@REGEX_061) {
             if ( $lc_text =~ /$regex/ ) {
-                if ( $pos == -1 ) {
-                    $pos = $-[0];
-                }
+                error_register( $error_code, substr( $text, $-[0], 40 ) );
+                last;
             }
-        }
-        if ( $pos > -1 ) {
-            error_register( $error_code, substr( $text, $pos, 40 ) );
         }
     }
 
