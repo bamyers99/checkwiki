@@ -886,6 +886,9 @@ sub check_article {
     # REMOVES FROM $text ANY CONTENT BETWEEN <nowiki> </nowiki> TAGS.
     # CALLS #23
     get_nowiki();
+    
+    # STRIPS TEMPLATES SPECIFIED IN CONFIG FOR #43
+    get_templates_all( 'strip' );
 
     # REMOVES FROM $text ANY CONTENT BETWEEN <pre> </pre> TAGS.
     # CALLS #24
@@ -935,11 +938,11 @@ sub check_article {
     
     # CREATES @Templates_all - USED IN #12, #31
     # CALLS #43
-    get_templates_all();
+    get_templates_all( 'report' );
 
     # DOES TEMPLATETIGER
     # USES @Templates_all
-    # CREATES @template - USED IN #59, #60
+    # CREATES @Template - USED IN #59, #60
 
     get_template();
 
@@ -1394,17 +1397,27 @@ sub get_ref {
 
 ###########################################################################
 ## GET TEMPLATES ALL
+##
+## Parameters
+## $mode - 'strip' = strip templates, 'report' = report errors
 ###########################################################################
 
 sub get_templates_all {
+    my ( $mode ) = @_;
 
     my $temp_text_2 = q{};
     my $test_text   = $text;
     my $found_error = 0;
+    undef(@Templates_all);
+    
+    if ( $mode eq 'strip' ) {
+    	return () if ( $Template_list[43][0] eq '-9999' );
+    	$found_error = 1; # don't report errors during this pass
+    }
 
 	# Save all templates in @Templates_all
 	
-    if ( $text =~ /\{\{/g ) {    # Article may not have a template.
+    if ( $mode eq 'report' and $text =~ /\{\{/g ) {    # Article may not have a template.
         $TTnumber++;
     }
 
@@ -1434,92 +1447,6 @@ sub get_templates_all {
             $temp_text_2 = substr( $temp_text_2, 1, length($temp_text_2) - 2 );
             push( @Templates_all, $temp_text_2 );
         }
-    }
-    
-    # Strip templates listed for #43
-    
-    foreach my $current_template (@Templates_all) {
-
-        my $orig_template = $current_template;
-
-        # Delete all breaks --> only one line
-        # Delete all tabs --> better for output
-        $current_template =~ s/[\n\t]+/ /g;
-    
-        $current_template =~ s/^\{\{//;
-        $current_template =~ s/\}\}$//;
-        $current_template =~ s/^ //g;
-
-        foreach (@Namespace_templates) {
-            $current_template =~ s/^$_://i;
-        }
-
-        my $template_name = q{};
-
-        my @template_split = split( /\|/, $current_template );
-
-        if ( index( $current_template, q{|} ) == -1 ) {
-
-            # If no pipe; for example {{test}}
-            next;
-        }
-
-        if ( index( $current_template, q{|} ) > -1 ) {
-
-            # Templates with pipe {{test|attribute=value}}
-
-            # Get template name
-            $template_split[0] =~ s/^ //g;
-            $template_name = $template_split[0];
-
-            if ( index( $template_name, q{_} ) > -1 ) {
-                $template_name =~ tr/_/ /;
-            }
-            if ( index( $template_name, q{  } ) > -1 ) {
-                $template_name =~ tr/  / /s;
-            }
-            
-            if ( $Template_list[43][0] ne '-9999' ) {
-            	my $lc_template_name = lc( $template_name );
-            	
-            	foreach my $strip_template ( @{$Template_list[43]} ) {
-            		if ( $strip_template eq $lc_template_name ) {
-            			$text =~ s/\Q$orig_template\E//s;
-            			my $lc_template = lc( $orig_template );
-            			$lc_text =~ s/\Q$lc_template\E//s;
-            		}
-            	}
-            }
-        }
-    }
-
-	# Check for errors
-	
-	$test_text = $text;
-
-    while ( $test_text =~ /\{\{/g ) {
-
-        my $temp_text = substr( $test_text, pos($test_text) - 2 );
-
-        my $brackets_begin = 1;
-        my $brackets_end   = 0;
-
-        while ( $temp_text =~ /\}\}/g ) {
-
-            # Find currect end - number of {{ == }}
-            $temp_text_2 =
-              q{ } . substr( $temp_text, 0, pos($temp_text) ) . q{ };
-
-            # Test the number of {{ and }}; do not use tr/// - that does character by character transliteration
-            $brackets_begin = ( $temp_text_2 =~ s/\{\{/\{\{/g );
-            $brackets_end   = ( $temp_text_2 =~ s/\}\}/\}\}/g );
-
-            last if ( $brackets_begin == $brackets_end );
-        }
-
-        if ( $brackets_begin == $brackets_end ) {
-        	# NOP
-        }
         elsif ( $found_error == 0 ) {
             my $begin_string = substr( $temp_text, 0, 40 );
             # Delete all breaks --> only one line
@@ -1538,6 +1465,62 @@ sub get_templates_all {
                 error_043_template_no_correct_end($begin_string);
             }
         }
+    }
+    
+    # Strip templates listed for #43
+    if ( $mode eq 'strip' ) {
+	    foreach my $current_template (@Templates_all) {
+	
+	        my $orig_template = $current_template;
+	
+	        # Delete all breaks --> only one line
+	        # Delete all tabs --> better for output
+	        $current_template =~ s/[\n\t]+/ /g;
+	    
+	        $current_template =~ s/^\{\{//;
+	        $current_template =~ s/\}\}$//;
+	        $current_template =~ s/^ //g;
+	
+	        foreach (@Namespace_templates) {
+	            $current_template =~ s/^$_://i;
+	        }
+	
+	        my $template_name = q{};
+	
+	        my @template_split = split( /\|/, $current_template );
+	
+	        if ( index( $current_template, q{|} ) == -1 ) {
+	
+	            # If no pipe; for example {{test}}
+	            next;
+	        }
+	
+	        if ( index( $current_template, q{|} ) > -1 ) {
+	
+	            # Templates with pipe {{test|attribute=value}}
+	
+	            # Get template name
+	            $template_split[0] =~ s/^ //g;
+	            $template_name = $template_split[0];
+	
+	            if ( index( $template_name, q{_} ) > -1 ) {
+	                $template_name =~ tr/_/ /;
+	            }
+	            if ( index( $template_name, q{  } ) > -1 ) {
+	                $template_name =~ tr/  / /s;
+	            }
+	            
+            	my $lc_template_name = lc( $template_name );
+            	
+            	foreach my $strip_template ( @{$Template_list[43]} ) {
+            		if ( $strip_template eq $lc_template_name ) {
+            			$text =~ s/\Q$orig_template\E//s;
+            			my $lc_template = lc( $orig_template );
+            			$lc_text =~ s/\Q$lc_template\E//s;
+            		}
+            	}
+	        }
+	    }
     }
 
     return ();
