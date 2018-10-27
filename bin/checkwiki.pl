@@ -442,28 +442,6 @@ sub pretty_bytes {
 }
 
 ###########################################################################
-###
-###########################################################################
-
-sub case_fixer {
-    my ($my_title) = @_;
-
-    # wiktionary article titles are case sensitive
-    if ( $project !~ /wiktionary/ ) {
-
-        #check for namespace
-        if ( $my_title =~ /^(.+?):(.+)/ ) {
-            $my_title = $1 . q{:} . ucfirst($2);
-        }
-        else {
-            $my_title = ucfirst($title);
-        }
-    }
-
-    return ($my_title);
-}
-
-###########################################################################
 ## RESET VARIABLES BEFORE SCANNING A NEW ARTICLE
 ###########################################################################
 
@@ -743,7 +721,6 @@ sub scan_pages {
 
                 #if ( $artcount > 300500 ) {
                 $page_namespace = 0;
-                $title          = case_fixer($title);
                 $revision       = $page->revision;
                 $text           = $revision->text;
                 check_article();
