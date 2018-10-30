@@ -254,7 +254,7 @@ push @REGEX_034, qr/__nonewsectionlink__/;
 @REGEX_034_BRACKET = @REGEX_034;
 push @REGEX_034_BRACKET, qr/\{\{\{/;
 
-$CHARACTERS_064 = q{"'`‘«»„“”().,–־—};
+$CHARACTERS_064 = q{"'`\x{2018}\x{AB}\x{BB}\x{201E}\x{201C}\x{201D}().,\x{2013}\x{5BE}\x{2014}}; # unicode of "'`‘«»„“”().,–\x{5BE}—
 
 push @REGEX_085, qr/<noinclude>\s*<\/noinclude>/;
 push @REGEX_085, qr/<onlyinclude>\s*<\/onlyinclude/;
