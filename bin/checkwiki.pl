@@ -1012,7 +1012,7 @@ sub get_nowiki {
 sub get_pre {
 
     my $test_text = lc($text);
-    my $pre_begin = () = $test_text =~ /<pre/g;
+    my $pre_begin = () = $test_text =~ /<pre[\s>]/g;
     my $pre_end   = () = $test_text =~ /<\/pre>/g;
 
     if ( $pre_begin != $pre_end ) {
@@ -1026,7 +1026,7 @@ sub get_pre {
         }
     }
 
-    $text =~ s/<pre>(.*?)<\/pre>/<pre>CheckWiki<\/pre>/sg;
+    $text =~ s/<pre[\s>](.*?)<\/pre>/<pre>CheckWiki<\/pre>/sg;
 
     return ();
 }
@@ -1038,7 +1038,7 @@ sub get_pre {
 sub get_math {
 
     my $test_text  = lc($text);
-    my $math_begin = () = $test_text =~ /<math/g;
+    my $math_begin = () = $test_text =~ /<math[\s>]/g;
     my $math_end   = () = $test_text =~ /<\/math>/g;
 
     if ( $math_begin != $math_end ) {
@@ -1052,7 +1052,7 @@ sub get_math {
         }
     }
 
-    $text =~ s/<math(.*?)<\/math>/<math>CheckWiki<\/math>/sg;
+    $text =~ s/<math[\s>](.*?)<\/math>/<math>CheckWiki<\/math>/sg;
 
     return ();
 }
@@ -1063,8 +1063,8 @@ sub get_math {
 
 sub get_ce {
 
-    $text =~ s/<ce(.*?)<\/ce>/<ce>CheckWiki<\/ce>/sgi;
-    $text =~ s/<chem(.*?)<\/chem>/<chem>CheckWiki<\/chem>/sgi;
+    $text =~ s/<ce[\s>](.*?)<\/ce>/<ce>CheckWiki<\/ce>/sgi;
+    $text =~ s/<chem[\s>](.*?)<\/chem>/<chem>CheckWiki<\/chem>/sgi;
 
     return ();
 }
@@ -1076,7 +1076,7 @@ sub get_ce {
 sub get_source {
 
     my $test_text    = lc($text);
-    my $source_begin = () = $test_text =~ /<source/g;
+    my $source_begin = () = $test_text =~ /<source[\s>]/g;
     my $source_end   = () = $test_text =~ /<\/source>/g;
 
     if ( $source_begin != $source_end ) {
@@ -1090,7 +1090,7 @@ sub get_source {
         }
     }
 
-    $text =~ s/<source(.*?)<\/source>/<source>CheckWiki<\/source>/sg;
+    $text =~ s/<source[\s>](.*?)<\/source>/<source>CheckWiki<\/source>/sg;
 
     return ();
 }
@@ -1102,7 +1102,7 @@ sub get_source {
 sub get_code {
 
     my $test_text  = lc($text);
-    my $code_begin = () = $test_text =~ /<code/g;
+    my $code_begin = () = $test_text =~ /<code[\s>]/g;
     my $code_end   = () = $test_text =~ /<\/code>/g;
 
     if ( $code_begin != $code_end ) {
@@ -1116,7 +1116,7 @@ sub get_code {
         }
     }
 
-    $text =~ s/<code>(.*?)<\/code>/<code>CheckWiki<\/code>/sg;
+    $text =~ s/<code[\s>](.*?)<\/code>/<code>CheckWiki<\/code>/sg;
 
     return ();
 }
@@ -1128,7 +1128,7 @@ sub get_code {
 sub get_syntaxhighlight {
     my $test_text = lc($text);
 
-    if ( $test_text =~ /<syntaxhighlight/ ) {
+    if ( $test_text =~ /<syntaxhighlight[\s>]/ ) {
         my $source_begin = 0;
         my $source_end   = 0;
 
@@ -1141,8 +1141,7 @@ sub get_syntaxhighlight {
             error_014_Source_no_correct_end($snippet);
         }
 
-        $text =~ s/<syntaxhighlight(.*?)<\/syntaxhighlight>/
-                 <syntaxhighlight>CheckWiki<\/syntaxhighlight>/sgx;
+        $text =~ s/<syntaxhighlight[\s>](.*?)<\/syntaxhighlight>/<syntaxhighlight>CheckWiki<\/syntaxhighlight>/sgx;
     }
 
     return ();
@@ -1165,7 +1164,7 @@ sub get_hiero {
 
 sub get_score {
 
-    $text =~ s/<score(.*?)<\/score>/<score>CheckWiki<\/score>/sg;
+    $text =~ s/<score[\s>](.*?)<\/score>/<score>CheckWiki<\/score>/sg;
 
     return ();
 }
@@ -1176,7 +1175,7 @@ sub get_score {
 
 sub get_graph {
 
-    $text =~ s/<graph(.*?)<\/graph>/<graph>CheckWiki<\/graph>/sg;
+    $text =~ s/<graph[\s>](.*?)<\/graph>/<graph>CheckWiki<\/graph>/sg;
     return ();
 }
 
@@ -1186,7 +1185,7 @@ sub get_graph {
 
 sub get_mapframe {
 
-    $text =~ s/<mapframe(.*?)<\/mapframe>/<mapframe>CheckWiki<\/mapframe>/sg;
+    $text =~ s/<mapframe[\s>](.*?)<\/mapframe>/<mapframe>CheckWiki<\/mapframe>/sg;
     return ();
 }
 
@@ -2861,7 +2860,7 @@ sub error_028_table_no_correct_end {
 
 sub error_029_gallery_no_correct_end {
     my $error_code    = 29;
-    my $gallery_begin = () = $lc_text =~ /<gallery/g;
+    my $gallery_begin = () = $lc_text =~ /<gallery[\s>]/g;
     my $gallery_end   = () = $lc_text =~ /<\/gallery>/g;
 
     if ( $gallery_begin != $gallery_end ) {
@@ -4649,7 +4648,7 @@ sub error_097_toc_has_material_after {
 sub error_098_sub_no_correct_end {
     my $error_code = 98;
 
-    my $sub_begin = () = $lc_text =~ /<sub/g;
+    my $sub_begin = () = $lc_text =~ /<sub[\s>]/g;
     my $sub_end   = () = $lc_text =~ /<\/sub>/g;
 
     if ( $sub_begin != $sub_end ) {
@@ -4673,7 +4672,7 @@ sub error_098_sub_no_correct_end {
 sub error_099_sup_no_correct_end {
     my $error_code = 99;
 
-    my $sup_begin = () = $lc_text =~ /<sup[> ]/g;
+    my $sup_begin = () = $lc_text =~ /<sup[\s>]/g;
     my $sup_end   = () = $lc_text =~ /<\/sup>/g;
 
     if ( $sup_begin != $sup_end ) {
