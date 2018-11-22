@@ -180,7 +180,7 @@ sub connect_database {
         $dsn, $user,
         $password,
         {
-            mysql_enable_utf8mb4 => 1,
+            mysql_enable_utf8 => 1,
         }
     ) or die("Could not connect to database: DBI::errstr()\n");
 

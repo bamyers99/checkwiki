@@ -2095,7 +2095,7 @@ sub connect_database {
 
     $dsn =
 'DBI:mysql:s51080__checkwiki_p:tools-db;mysql_read_default_file=../../replica.my.cnf';
-    $dbh = DBI->connect( $dsn, $user, $password, { mysql_enable_utf8mb4 => 1 } )
+    $dbh = DBI->connect( $dsn, $user, $password, { mysql_enable_utf8 => 1 } )
       or die( 'Could not connect to database: ' . DBI::errstr() . "\n" );
 
 	$dbh->do('SET NAMES utf8mb4')
