@@ -100,6 +100,9 @@ sub open_db {
         }
     ) or die( "Could not connect to database: " . DBI::errstr() . "\n" );
 
+	$dbh->do('SET NAMES utf8mb4')
+	   or die($dbh->errstr);
+
     return ();
 }
 

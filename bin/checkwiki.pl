@@ -343,6 +343,9 @@ sub open_db {
             mysql_auto_reconnect => 1,
         }
     ) or die( 'Could not connect to database: ' . DBI::errstr() . "\n" );
+    
+	$dbh->do('SET NAMES utf8mb4')
+	   or die($dbh->errstr);
 
     return ();
 }

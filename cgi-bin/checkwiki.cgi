@@ -2097,6 +2097,9 @@ sub connect_database {
     $dbh = DBI->connect( $dsn, $user, $password, { mysql_enable_utf8mb4 => 1 } )
       or die( 'Could not connect to database: ' . DBI::errstr() . "\n" );
 
+	$dbh->do('SET NAMES utf8mb4')
+	   or die($dbh->errstr);
+
     return ($dbh);
 }
 
