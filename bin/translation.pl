@@ -17,6 +17,7 @@
 use strict;
 use warnings;
 use utf8;
+use feature 'unicode_strings';
 
 use DBI;
 use Encode;

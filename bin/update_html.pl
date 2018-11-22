@@ -21,6 +21,7 @@
 
 use strict;
 use warnings;
+use feature 'unicode_strings';
 
 use DBI;
 use Getopt::Long

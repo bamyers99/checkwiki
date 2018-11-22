@@ -28,6 +28,7 @@ use Getopt::Long
 use LWP::UserAgent;
 use POSIX qw(strftime);
 use URI::Escape;
+use feature 'unicode_strings';
 
 use MediaWiki::DumpFile::Pages;
 use MediaWiki::API;

@@ -19,6 +19,7 @@ use strict;
 use warnings;
 #use lib '/data/project/checkwiki/perl5/perlbrew/perls/perl-5.24.0/lib/site_perl/5.24.0/';
 use lib '/data/project/checkwiki/perl/lib/perl5';
+use feature 'unicode_strings';
 
 use DBI;
 use Carp;

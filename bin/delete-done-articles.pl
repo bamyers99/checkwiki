@@ -20,6 +20,7 @@ use warnings;
 use DBI;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
+use feature 'unicode_strings';
 
 binmode( STDOUT, ':encoding(UTF-8)' );
 

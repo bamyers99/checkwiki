@@ -16,6 +16,7 @@
 use strict;
 use warnings;
 use utf8;
+use feature 'unicode_strings';
 use lib
 '/data/project/checkwiki/perl5/perlbrew/perls/perl-5.24.0/lib/site_perl/5.24.0/';
 

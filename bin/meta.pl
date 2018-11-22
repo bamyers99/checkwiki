@@ -21,6 +21,7 @@ use DBI;
 use Encode;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
+use feature 'unicode_strings';
 
 use LWP::UserAgent;
 use URI::Escape;
