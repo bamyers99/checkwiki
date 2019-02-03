@@ -3771,6 +3771,9 @@ sub error_064_link_equal_linktext {
 s/\[\[(\p{Letter}[^|\]]*)\|([$CHARACTERS_064]+)\s*(\p{Lowercase_Letter})/\[\[$1\|$2\u$3/og;
     }
 
+	# prevent memory leak in perl 5.24 per https://rt.perl.org/Public/Bug/Display.html?id=130254
+    no warnings;
+    
     # Account for [[Foo|Foo]]
     if ( $temp_text =~ /(\[\[([^|]*)\|\2\s*\]\])/ ) {
         my $found_text = $1;
@@ -3792,6 +3795,8 @@ s/\[\[(\p{Letter}[^|\]]*)\|([$CHARACTERS_064]+)\s*(\p{Lowercase_Letter})/\[\[$1\
             error_register( $error_code, $found_text );
         }
     }
+    
+    use warnings;
 
     return ();
 }
@@ -4385,11 +4390,14 @@ sub error_087_html_named_entities_without_semicolon {
     $test_text =~ s/<ref(.*?)>https?:(.*?)<\/ref>//sg;
     $test_text =~ s/https?:(.*?)\n//g;
 
+	# prevent memory leak in perl 5.24 per https://rt.perl.org/Public/Bug/Display.html?id=130254
+   	no warnings;
     foreach my $entity (@HTML_NAMED_ENTITIES) {
         if ( $test_text =~ /&($entity)[^;] /g ) {
             $pos = $-[0];
         }
     }
+    use warnings;
 
     if ( $pos > -1 ) {
         error_register( $error_code, substr( $test_text, $pos, 40 ) );
