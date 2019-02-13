@@ -2549,7 +2549,7 @@ sub error_016_unicode_control_character {
     # 200B is a problem with IPA characters in some wikis (czwiki)
     # \p{Co} or PUA is Private Unicode Area
 
-    if ( $project eq 'enwiki' ) {
+#    if ( $project eq 'enwiki' ) {
         if ( $text =~ /($REGEX_LONG_016)/ or $text =~ /(\p{Co})/ ) {
             my $test_text = $text;
             my $pos = index( $test_text, $1 );
@@ -2574,7 +2574,7 @@ sub error_016_unicode_control_character {
 
             error_register( $error_code, $test_text );
         }
-    }
+#    }
 
     return ();
 }
