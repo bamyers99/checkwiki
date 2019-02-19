@@ -1397,7 +1397,7 @@ sub get_templates_all {
 
 	# Save all templates in @Templates_all
 	
-    if ( $mode eq 'report' and $text =~ /\{\{/g ) {    # Article may not have a template.
+    if ( $mode eq 'report' and $text =~ /\{\{/ ) {    # Article may not have a template.
         $TTnumber++;
     }
 
@@ -2389,7 +2389,7 @@ sub error_009_multiple_category_in_line {
     my $error_code = 9;
 
     if ( $text =~
-        /\[\[($Cat_regex):(.*?)\]\]([ ]*)\[\[($Cat_regex):(.*?)\]\]/ig )
+        /\[\[($Cat_regex):(.*?)\]\]([ ]*)\[\[($Cat_regex):(.*?)\]\]/i )
     {
 
         my $error_text =
@@ -3916,7 +3916,7 @@ sub error_069_isbn_wrong_syntax {
       )
     {
 
-        if ( $text =~ / ISBN\s*(?:[-:#;]|10|13)\s*/g ) {
+        if ( $text =~ / ISBN\s*(?:[-:#;]|10|13)\s*/ ) {
 
             # Use "-2" to see if there is a | before ISBN
             # in the next if statement
@@ -3931,16 +3931,16 @@ sub error_069_isbn_wrong_syntax {
                 error_register( $error_code, $error );
             }
         }
-        elsif ( $text =~ / \[\[ISBN\]\]\s*[-:#;]+\s*\d/g ) {
+        elsif ( $text =~ / \[\[ISBN\]\]\s*[-:#;]+\s*\d/ ) {
             error_register( $error_code, substr( $text, $-[0], 40 ) );
         }
 
         # CHECK FOR CASES OF ISBNXXXXXXXXX.  INFOBOXES CAN HAVE ISBN10
         # SO NEED TO WORK AROUND THAT.
-        elsif ( $text =~ / ISBN\d[-\d ][-\d]/g ) {
+        elsif ( $text =~ / ISBN\d[-\d ][-\d]/ ) {
             error_register( $error_code, substr( $text, $-[0], 40 ) );
         }
-        elsif ( $text =~ / (10|13)-ISBN/g ) {
+        elsif ( $text =~ / (10|13)-ISBN/ ) {
             error_register( $error_code, substr( $text, $-[0], 40 ) );
         }
 
