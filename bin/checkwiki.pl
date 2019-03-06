@@ -229,11 +229,9 @@ $REGEX_SHORT_016 = qr/[\x{200E}\x{FEFF}]/;
 #           \x{202C}   # <Bi directional text> (Pop Directional Format)
 #           \x{202D}   # <Bi directional text> (Left to Right Override)
 #           \x{202E}   # <Bi directional text> (Right to Left Override)
-#           \x{00A0}   # <Non breaking space>
-#           \x{00AD}   # <Soft hyphen>
 #           ]/x;
 $REGEX_LONG_016 =
-qr/[\x{200E}\x{FEFF}\x{007F}\x{200B}\x{2028}\x{202A}\x{202C}\x{202D}\x{202E}\x{00A0}\x{00AD}\x{202B}\x{200F}\x{2004}\x{2005}\x{2006}\x{2007}\x{2008}\x{FFC}]/;
+qr/[\x{200E}\x{FEFF}\x{007F}\x{200B}\x{2028}\x{202A}\x{202C}\x{202D}\x{202E}\x{202B}\x{200F}\x{2004}\x{2005}\x{2006}\x{2007}\x{2008}]/;
 
 push @REGEX_034, qr/#if:/;
 push @REGEX_034, qr/#ifeq:/;
@@ -2570,7 +2568,6 @@ sub error_016_unicode_control_character {
             $test_text =~ s/\x{202E}/\{202E\}/;
             $test_text =~ s/\x{FEFF}/\{FEFF\}/;
             $test_text =~ s/\x{FFFC}/\{FFFC\}/;
-            $test_text =~ s/\x{00A0}/\{00A0\}/;
 
             error_register( $error_code, $test_text );
         }
