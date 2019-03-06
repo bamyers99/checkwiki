@@ -25,7 +25,7 @@ foreach my $project (@ProjectList) {
     system(
         'jsub',
         '-j',             'y',
-        '-l',             'release=trusty',
+#        '-l',             'release=trusty',
         '-mem',           '2048m',
         '-N',             $project . '-delay',
         '-o',             '/data/project/checkwiki/var/log',

@@ -686,7 +686,7 @@ sub readTemplates {
 
     foreach my $item ( @{ $Template_list[61] } ) {
         $item = lc($item);
-        push @REGEX_061, qr/\{\{[ ]?$item[^}]*[}]{2,4}[ ]{0,2}([.,?:;]|! )/;
+        push @REGEX_061, qr/\{\{[ ]?$item[^}]*[}]{2,4}[ ]{0,2}[.,?:;!]\s/;
     }
 
     foreach my $item ( @{ $Template_list[78] } ) {
@@ -3673,10 +3673,11 @@ sub error_061_reference_with_punctuation {
 
     # Not sure about elipse (...).  "{1,2}[^\.]" to not check for them
     # Space after !, otherwise will catch false-positive from tables
-    if ( $lc_text =~ /<\/ref>[ ]{0,2}(\.{1,2}[^.]|[,?:;]|! )/ ) {
+    # Must have whitespace after punctuation to avoid false-positive when next sentence starts with punctuation. ie. .NET
+    if ( $lc_text =~ /<\/ref>[ ]{0,2}[.,?:;!]\s/ ) {
         error_register( $error_code, substr( $text, $-[0], 40 ) );
     }
-    elsif ( $lc_text =~ /(<ref name[^\/]*\/>[ ]{0,2}(\.{1,2}[^.]|[,?:;]|! ))/ )
+    elsif ( $lc_text =~ /<ref name[^\/]*\/>[ ]{0,2}[.,?:;!]\s/ )
     {
         error_register( $error_code, substr( $text, $-[0], 40 ) );
     }
