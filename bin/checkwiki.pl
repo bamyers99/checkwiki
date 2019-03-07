@@ -3670,11 +3670,11 @@ sub error_061_reference_with_punctuation {
 
     # Not sure about elipse (...).  "{1,2}[^\.]" to not check for them
     # Space after !, otherwise will catch false-positive from tables
-    # Must have whitespace after punctuation to avoid false-positive when next sentence starts with punctuation. ie. .NET
-    if ( $lc_text =~ /<\/ref>[ ]{0,2}[.,?:;!]\s/ ) {
+    # Must have whitespace or reference after punctuation to avoid false-positive when next sentence starts with punctuation. ie. .NET
+    if ( $lc_text =~ /<\/ref>[ ]{0,2}[.,?:;!](\s|\s*<ref)/ ) {
         error_register( $error_code, substr( $text, $-[0], 40 ) );
     }
-    elsif ( $lc_text =~ /<ref name[^\/]*\/>[ ]{0,2}[.,?:;!]\s/ )
+    elsif ( $lc_text =~ /<ref name[^\/]*\/>[ ]{0,2}[.,?:;!](\s|\s*<ref)/ )
     {
         error_register( $error_code, substr( $text, $-[0], 40 ) );
     }
