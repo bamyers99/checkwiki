@@ -2561,8 +2561,10 @@ sub error_016_unicode_control_character {
             $test_text =~ s/\x{2008}/\{2008\}/;
             $test_text =~ s/\x{200B}/\{200B\}/;
             $test_text =~ s/\x{200E}/\{200E\}/;
+            $test_text =~ s/\x{200F}/\{200F\}/;
             $test_text =~ s/\x{202A}/\{202A\}/;
             $test_text =~ s/\x{2028}/\{2028\}/;
+            $test_text =~ s/\x{202B}/\{202B\}/;
             $test_text =~ s/\x{202C}/\{202C\}/;
             $test_text =~ s/\x{202D}/\{202D\}/;
             $test_text =~ s/\x{202E}/\{202E\}/;
