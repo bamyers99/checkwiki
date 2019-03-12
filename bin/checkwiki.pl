@@ -3271,7 +3271,7 @@ sub error_046_count_square_breaks_begin {
 
                 last
                   if ( $beginn_square_brackets eq $end_square_brackets
-                    or $begin_time + 60 > time() );
+                    or $begin_time + 60 < time() );
 
             }
 
@@ -3284,7 +3284,7 @@ sub error_046_count_square_breaks_begin {
             }
 
             # End if a problem was found, no endless run
-            last if ( $found_text ne q{} or $begin_time + 60 > time() );
+            last if ( $found_text ne q{} or $begin_time + 60 < time() );
         }
 
         if ( $found_text ne q{} ) {
