@@ -1771,13 +1771,19 @@ sub check_for_redirect {
 ###########################################################################
 
 sub get_categories {
-
+	my $thetext = $text;
+	
+	if ( $page_is_redirect eq 'yes' ) {
+		# Strip redirect as it may be to a category
+		$thetext =~ s/#redirect\s*\[\[[^\]]+\]\]//i;
+	}
+	
     foreach my $namespace_cat_word (@Namespace_cat) {
 
         my $pos_end     = 0;
         my $pos_start   = 0;
         my $counter     = 0;
-        my $test_text   = $text;
+        my $test_text   = $thetext;
         my $search_word = $namespace_cat_word;
 
         while ( $test_text =~ /\[\[([ ]+)?$search_word\s*:/ig ) {
