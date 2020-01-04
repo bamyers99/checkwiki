@@ -201,8 +201,8 @@ foreach my $item (@ack) {
 }
 
 push @REGEX_BR_002, qr/<br\s*\/\s*[^ ]>/;      # <br\/t>
-push @REGEX_BR_002, qr/<br[^ ]\/>/;            # <brt \/>
-push @REGEX_BR_002, qr/<br[^ \/]>/;            # <brt>
+push @REGEX_BR_002, qr/<br[^\s]\s*\/>/;        # <brt \/>
+push @REGEX_BR_002, qr/<br[^\s\/]>/;           # <brt>
 push @REGEX_BR_002, qr/<br\s*\/\s*[^ >]/;      # <br
 push @REGEX_BR_002, qr/<br\s*[^ >\/]/;         # <br
 push @REGEX_BR_002, qr/<br\h*[^ \v>\/]/;       # <br t> \v is newline
