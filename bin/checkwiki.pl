@@ -4610,7 +4610,10 @@ sub error_095_user_signature {
     my $error_code = 95;
 
     if ( $lc_text =~ /$REGEX_095/o ) {
-        error_register( $error_code, substr( $text, $-[0], 40 ) );
+    	my $pos = $-[0];
+    	if ($lc_text !~ /\{\{\s*under construction/) { # ignore template 'Under construction'
+            error_register( $error_code, substr( $text, $pos, 40 ) );
+    	}
     }
 
     return ();
