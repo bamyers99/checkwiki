@@ -3760,9 +3760,6 @@ sub error_064_link_equal_linktext {
     # Account for [[foo_foo|foo foo]] by removing all _.
     $temp_text =~ tr/_/ /;
 
-	# prevent memory leak in perl 5.24 per https://rt.perl.org/Public/Bug/Display.html?id=130254
-    no warnings;
-
     # Account for [[Foo|foo]] and [[foo|Foo]] by capitalizing the
     # the first character after the [ and |.  But, do only on
     # non-wiktionary projects
@@ -3779,6 +3776,9 @@ sub error_064_link_equal_linktext {
         $temp_text =~
 s/\[\[(\p{Letter}[^|\]]*)\|([$CHARACTERS_064]+)\s*(\p{Lowercase_Letter})/\[\[$1\|$2\u$3/og;
     }
+
+	# prevent memory leak in perl 5.24 per https://rt.perl.org/Public/Bug/Display.html?id=130254
+    no warnings;
     
     # Account for [[Foo|Foo]]
     if ( $temp_text =~ /(\[\[([^|]*)\|\2\s*\]\])/ ) {
