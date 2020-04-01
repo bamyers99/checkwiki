@@ -5030,14 +5030,10 @@ sub error_111_ref_after_ref_list {
     my $lastref = rindex( $lc_text, '<ref>' );
     if ( $lastref > -1 ) {
 
-        my $references = rindex( $lc_text, '<references' );
+        my $reftemplate = rindex( $lc_text, '<references' );
 
-        if ( $references < $lastref and $references > 0 ) {
-            error_register( $error_code, substr( $text, $lastref, 40 ) );
-        }
-        elsif ( $Template_list[$error_code][0] ne '-9999' ) {
+        if ( $Template_list[$error_code][0] ne '-9999' ) {
             my @temp        = @{ $Template_list[3] };
-            my $reftemplate = -1;
 
             foreach my $template (@temp) {
                 my $string = '{{' . $template;
@@ -5047,12 +5043,13 @@ sub error_111_ref_after_ref_list {
                 }
             }
             if ( $reftemplate < $lastref and $reftemplate > 0 ) {
-                if ( $references < $reftemplate ) {
-                    error_register( $error_code,
-                        substr( $text, $lastref, 40 ) );
-                }
+                error_register( $error_code, substr( $text, $lastref, 40 ) );
             }
         }
+        elsif ( $reftemplate < $lastref and $reftemplate > 0 ) {
+            error_register( $error_code, substr( $text, $lastref, 40 ) );
+        }
+        
     }
 
     return ();
