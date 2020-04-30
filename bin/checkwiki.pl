@@ -2223,8 +2223,8 @@ sub error_003_have_ref {
         my $test_text = $lc_text;
 
         $test = 'true'
-          if (  $test_text =~ /<[ ]?+references\s+>/
-            and $test_text =~ /<[ ]?+\/references\s+>/ );
+          if (  $test_text =~ /<[ ]?+references\s*>/
+            and $test_text =~ /<[ ]?+\/references\s*>/ );
         $test = 'true' if ( $test_text =~ /<[ ]?+references[ ]?+\/>/ );
         $test = 'true' if ( $test_text =~ /<[ ]?+references\s+group/ );
         $test = 'true' if ( $test_text =~ /<[ ]?+references\s+responsive/ );
