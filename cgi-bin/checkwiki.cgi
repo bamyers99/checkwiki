@@ -752,7 +752,7 @@ sub begin_html {
     print "<title>Check Wikipedia</title>\n";
 
     if ( $param_view ne 'bots' ) {
-        print '<link rel="stylesheet" href="https://tools.wmflabs.org/checkwiki/css/style.css" type="text/css" />' . "\n";
+        print '<link rel="stylesheet" href="../css/style.css" type="text/css" />' . "\n";
     }
 #    print get_style() if ( $param_view ne 'bots' );
     print "</head>\n";
