@@ -31,7 +31,7 @@ use utf8;
 binmode( STDOUT, ":encoding(UTF-8)" );
 
 our $output_directory  = '/data/project/checkwiki/public_html';
-our $webpage_directory = 'https://tools.wmflabs.org/checkwiki';
+our $webpage_directory = 'https://checkwiki.toolforge.org';
 our $script_name = 'cgi-bin/checkwiki.cgi';
 
 our $dbh;
@@ -626,7 +626,7 @@ sub get_number_error_and_desc_by_prio {
           '<td class="table" style="text-align:right; vertical-align:middle;">'
           . $output[1] . '</td>';
         $result .=
-'<td class="table"><a href="https://tools.wmflabs.org/checkwiki/cgi-bin/checkwiki.cgi?project='
+'<td class="table"><a href="https://checkwiki.toolforge.org/cgi-bin/checkwiki.cgi?project='
           . $param_project
           . '&amp;view=only&amp;id='
           . $output[4]
