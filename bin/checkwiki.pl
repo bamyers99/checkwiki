@@ -1524,9 +1524,14 @@ sub get_template {
         $current_template =~ s/^\{\{//;
         $current_template =~ s/\}\}$//;
         $current_template =~ s/^ //g;
+        
+       	my $lccurtmp = lc($current_template);
 
         foreach (@Namespace_templates) {
-            $current_template =~ s/^$_://i;
+        	# Multibyte unicode template prefix (ie. zhwiki) causes substitute regex below to leak memory.
+        	if ( rindex( $lccurtmp, $_, 0 ) == 0 ) {
+            	$current_template =~ s/^$_://i;
+        	}
         }
 
         $number_of_templates++;
