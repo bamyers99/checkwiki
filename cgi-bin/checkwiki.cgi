@@ -1021,18 +1021,19 @@ sub project_info {
     if(length(ifnull(project_page,''))!=0,project_page, 'no data') project_page,
     if(length(ifnull(translation_page,''))!=0,translation_page, 'no data') translation_page,
     date_format(last_dump,'%Y-%m-%d') last_dump, 
-    ifnull(DATEDIFF(curdate(),last_dump),'')
+    ifnull(DATEDIFF(curdate(),last_dump),''), last_update
     FROM cw_overview WHERE project= ? limit 1;} )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute($project)
       or die "Cannot execute: $sth->errstr\n";
 
-    my ( $project_sql,  $wikipage_sql, $translation_sql, $lastdump_sql, $dumpdate_sql);
+    my ( $project_sql,  $wikipage_sql, $translation_sql, $lastdump_sql, $dumpdate_sql, $lastupdate_sql);
     $sth->bind_col( 1, \$project_sql );
     $sth->bind_col( 2, \$wikipage_sql );
     $sth->bind_col( 3, \$translation_sql );
     $sth->bind_col( 4, \$lastdump_sql );
     $sth->bind_col( 5, \$dumpdate_sql );
+    $sth->bind_col( 6, \$lastupdate_sql );
 
     $sth->fetchrow_arrayref;
 
@@ -1059,10 +1060,14 @@ sub project_info {
       . $translation_sql_under
       . '">here</a></li>' . "\n";
     $result .=
-        '<li>Last scanned dump '
+        '<li>Last scanned dump: '
       . $lastdump_sql . ' ('
       . $dumpdate_sql
       . ' days old)</li>' . "\n";
+    $result .=
+        '<li>Last update: '
+      . substr( $lastupdate_sql, 0, 10 )
+      . '</li>' . "\n";
 
     $result .= '</ul>';
 
