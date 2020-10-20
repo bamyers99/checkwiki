@@ -684,7 +684,7 @@ sub readTemplates {
 
     foreach my $item ( @{ $Template_list[61] } ) {
         $item = lc($item);
-        push @REGEX_061, qr/\{\{[ ]?$item[^}]*[}]{2,4}[ ]{0,2}[.,?:;!]\s/;
+        push @REGEX_061, qr/\{\{[ ]?$item\s*\|[^}]*\}\}[ ]{0,2}[.,?:;!]\s/; # Handling nested templates is too complicated.
     }
 
     foreach my $item ( @{ $Template_list[78] } ) {
