@@ -1,0 +1,22 @@
+=head2 Sat Feb 22 00:41:30 2020: C<Module> L<Devel::Leak|Devel::Leak>
+
+=over 4
+
+=item *
+
+C<installed into: /data/project/checkwiki/perl/lib/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.03>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
