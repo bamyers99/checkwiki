@@ -4,18 +4,7 @@ use base qw(Business::ISBN);
 
 use Business::ISBN qw(:all);
 
-use subs qw(
-	_checksum
-	INVALID_GROUP_CODE
-	INVALID_PUBLISHER_CODE
-	BAD_CHECKSUM
-	GOOD_ISBN
-	BAD_ISBN
-	);
-
 use vars qw(
-	$VERSION
-	$debug
 	$MAX_GROUP_CODE_LENGTH
 	%ERROR_TEXT
 	);
@@ -24,7 +13,7 @@ use Carp qw(carp croak cluck);
 
 my $debug = 0;
 
-$VERSION   = '2.09';
+our $VERSION   = '3.005';
 
 sub _max_length { 10 }
 
@@ -89,6 +78,8 @@ sub _checksum {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Business::ISBN10 - work with 10 digit International Standard Book Numbers
@@ -105,7 +96,7 @@ See L<Business::ISBN>
 
 This source is in Github:
 
-    https://github.com/briandfoy/business--isbn
+    https://github.com/briandfoy/business-isbn
 
 =head1 AUTHOR
 
@@ -113,8 +104,9 @@ brian d foy C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2001-2014, brian d foy, All Rights Reserved.
+Copyright © 2001-2017, brian d foy <bdfoy@cpan.org>. All rights reserved.
 
-You may redistribute this under the same terms as Perl itself.
+This module is licensed under the Artistic License 2.0. See the LICENSE
+file in the distribution, or https://opensource.org/licenses/Artistic-2.0
 
 =cut

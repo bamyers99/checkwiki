@@ -67,16 +67,26 @@ use subs qw(
 	BAD_ISBN
 	ARTICLE_CODE_OUT_OF_RANGE
 	);
-use vars qw( $VERSION @ISA @EXPORT_OK %EXPORT_TAGS $debug %group_data
-	$MAX_GROUP_CODE_LENGTH %ERROR_TEXT );
+use vars qw(
+	@EXPORT_OK
+	%EXPORT_TAGS
+	%group_data
+	$MAX_GROUP_CODE_LENGTH
+	);
 
 use Carp qw(carp croak cluck);
-use base qw(Exporter);
+use Exporter qw(import);
 
-use Business::ISBN::Data 20140910.001; # now a separate module
+use Business::ISBN::Data 20191107; # now a separate module
 # ugh, hack
 *group_data = *Business::ISBN::country_data;
-sub _group_data { $group_data{ $_[1] } }
+sub _group_data {
+  my $isbn_prefix
+    = ref $_[0] eq 'Business::ISBN13'
+    ? $_[0]->prefix
+    : "978";
+  return $group_data{ $isbn_prefix }->{ $_[1] };
+}
 
 sub _max_group_code_length  { $Business::ISBN::MAX_COUNTRY_CODE_LENGTH };
 sub _max_publisher_code_length  {
@@ -94,7 +104,7 @@ sub _publisher_ranges {
 	[ @{ $self->_group_data( $self->group_code )->[1] } ];
 	}
 
-my $debug = 0;
+my $debug = $ENV{BUSINESS_ISBN_DEBUG};
 
 BEGIN {
 	@EXPORT_OK = qw(
@@ -110,7 +120,7 @@ BEGIN {
 		);
 	};
 
-$VERSION = "2.09";
+our $VERSION   = '3.005';
 
 sub ARTICLE_CODE_OUT_OF_RANGE () { -5 }
 sub INVALID_PREFIX            () { -4 };
@@ -120,7 +130,7 @@ sub BAD_CHECKSUM              () { -1 };
 sub GOOD_ISBN                 () {  1 };
 sub BAD_ISBN                  () {  0 };
 
-%ERROR_TEXT = (
+our %ERROR_TEXT = (
 	 0 => "Bad ISBN",
 	 1 => "Good ISBN",
 	-1 => "Bad ISBN checksum",
@@ -183,10 +193,11 @@ digit, 'x', or 'X'.
 The constructor attempts to determine the group code and the publisher
 code.  If these data cannot be determined, the constructor sets C<<
 $obj->error >> to something other than C<GOOD_ISBN>. An object is
-still returned and it is up to the program to check C<< $obj->error >>
-for one of five values (which may be exported on demand). The actual
+still returned and it is up to the program to check the C<< error >> method
+for one of five values or one of the C<< error_* >> methods to check for
+a particular error. The actual
 values of these symbolic versions are the same as those from previous
-versions of this module which used literal values.
+versions of this module which used literal values:
 
 
 	Business::ISBN::INVALID_PUBLISHER_CODE
@@ -197,9 +208,12 @@ versions of this module which used literal values.
 
 If you have one of these values and want to turn it into a string, you
 can use the C<%Business::ISBN::ERROR_TEXT> hash, which is exportable
-by asking for it explicitly in the import list.
+by asking for it explicitly in the import list:
 
 	use Business::ISBN qw(%ERROR_TEXT);
+
+As of version 2.010_01, you can get this text from C<< error_text >>
+so you don't have to import anything.
 
 The string passed as the ISBN need not be a valid ISBN as long as it
 superficially looks like one.  This allows one to use the
@@ -294,7 +308,43 @@ value is a key in %ERROR_TEXT.
 
 =cut
 
-sub error { $_[0]->{'valid'} }
+sub error { $_[0]->{'valid'} < 1 and $_[0]->{'valid'} }
+
+=item error_is_bad_group
+
+=item error_is_bad_publisher
+
+=item error_is_article_out_of_range
+
+=item error_is_bad_checksum
+
+Returns true if the ISBN error is that type.
+
+=cut
+
+sub error_is_bad_group {
+	return $_[0]->error == INVALID_GROUP_CODE;
+	}
+
+sub error_is_bad_publisher {
+	return $_[0]->error == INVALID_PUBLISHER_CODE;
+	}
+
+sub error_is_article_out_of_range {
+	return $_[0]->error == ARTICLE_CODE_OUT_OF_RANGE;
+	}
+
+sub error_is_bad_checksum {
+	return $_[0]->error == BAD_CHECKSUM;
+	}
+
+=item error_text
+
+Returns a text version of the error text
+
+=cut
+
+sub error_text { $ERROR_TEXT{$_[0]->{'valid'}} }
 
 =item is_valid
 
@@ -524,46 +574,6 @@ sub as_isbn13 {
 	croak "as_isbn13() must be implemented in Business::ISBN subclass"
 	}
 
-=item xisbn
-
-In scalar context, returns an anonymous array of related ISBNs using xISBN.
-In list context, returns a list.
-
-This feature requires C<LWP::Simple>.
-
-=cut
-
-sub xisbn {
-	my $self = shift;
-
-	my $data = $self->_get_xisbn;
-	$data =~ tr/x/X/;
-
-	my @isbns = $data =~ m|<isbn>(.*?)</isbn>|ig;
-	shift @isbns;
-	wantarray ? @isbns : \@isbns;
-	}
-
-sub _get_xisbn {
-	my $self = shift;
-
-	eval "use LWP::Simple";
-	if( $@ ) { carp "You need LWP::Simple to use xisbn()"; return; }
-
-	my $data = LWP::Simple::get( $self->_xisbn_url );
-
-	carp "Could not fetch xISBN data" unless defined $data;
-
-	return $data;
-	}
-
-sub _xisbn_url {
-	my $self = shift;
-	my $isbn = $self->as_string([]);
-
-	return "http://xisbn.worldcat.org/xid/isbn/$isbn";
-	}
-
 =item increment
 
 Returns the next C<Business::ISBN> by incrementing the article code of
@@ -616,11 +626,11 @@ sub _step_article_code {
 		;
 
 	my $next_isbn = Business::ISBN->new(
-		join('', 
-			$self->prefix, 
-			$self->group_code, 
-			$self->publisher_code, 
-			sprintf( "%0*d", $self->article_code_length, $next_article_code ), 
+		join('',
+			$self->prefix,
+			$self->group_code,
+			$self->publisher_code,
+			sprintf( "%0*d", $self->article_code_length, $next_article_code ),
 			'0'
 			)
 		);
@@ -877,7 +887,7 @@ __END__
 
 This source is in Github:
 
-    https://github.com/briandfoy/business--isbn
+    https://github.com/briandfoy/business-isbn
 
 =head1 AUTHOR
 
@@ -885,9 +895,10 @@ brian d foy C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2001-2014, brian d foy, All Rights Reserved.
+Copyright © 2001-2017, brian d foy <bdfoy@cpan.org>. All rights reserved.
 
-You may redistribute this under the same terms as Perl itself.
+This module is licensed under the Artistic License 2.0. See the LICENSE
+file in the distribution, or https://opensource.org/licenses/Artistic-2.0
 
 =head1 CREDITS
 
