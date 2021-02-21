@@ -200,13 +200,13 @@ foreach my $item (@ack) {
     push @REGEX_002, qr/(<\s*\/?\s*$item\s*\/\s*>)/;
 }
 
-push @REGEX_BR_002, qr/<br\s*\/\s*+[^ ]>/;     # <br\/t>
+push @REGEX_BR_002, qr/<br\s*\/\s*+[^ >]>/;     # <br\/t>
 push @REGEX_BR_002, qr/<br[^\s]\s*\/>/;        # <brt \/>
-push @REGEX_BR_002, qr/<br[^\s\/]>/;           # <brt>
+push @REGEX_BR_002, qr/<br[^\s\/>]>/;           # <brt>
 push @REGEX_BR_002, qr/<br\s*\/\s*+[^ >]/;     # <br
 push @REGEX_BR_002, qr/<br\s*+[^ >\/]/;        # <br  Note: \s*+ is possessive, no backtracking. Fixes ie. <br\n/>
 push @REGEX_BR_002, qr/<br\h*+[^ \v>\/]/;      # <br t>  \v is newline
-push @REGEX_BR_002, qr/<[^ w]br[^\/]*\s*>/;    # <tbr> or < br>
+push @REGEX_BR_002, qr/<[^ w]br[^\/>]*\s*>/;    # <tbr> or < br>
 push @REGEX_BR_002, qr/<\/hr>/;
 
 $REGEX_SHORT_016 = qr/[\x{200E}\x{FEFF}]/;
