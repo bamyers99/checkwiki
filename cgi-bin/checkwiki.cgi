@@ -754,7 +754,6 @@ sub begin_html {
     if ( $param_view ne 'bots' ) {
         print '<link rel="stylesheet" href="../css/style.css" type="text/css" />' . "\n";
     }
-#    print get_style() if ( $param_view ne 'bots' );
     print "</head>\n";
     print "<body>\n\n";
     print "<h1>Check Wikipedia</h1>\n\n" if ( $param_view ne 'bots' );
@@ -1780,7 +1779,46 @@ sub get_article_of_error {
         $result .= '">Done</a></td></tr>' . "\n\n";
 
     }
+    
     $result .= '</table>' . "\n\n";
+    
+    #------------------- ← 0 bis 25 →
+    
+    $result .= '<p>';
+    $result .=
+        '<a href="'
+      . $script_name
+      . '?project='
+      . $param_project
+      . '&amp;view=only&amp;id='
+      . $param_id
+      . '&amp;offset='
+      . $offset_lower
+      . '&amp;limit='
+      . $param_limit
+      . '&amp;orderby='
+      . $param_orderby
+      . '&amp;sort='
+      . $param_sort
+      . '">←</a>';
+    $result .= q{ } . $param_offset . ' to ' . $offset_end . q{ };
+    $result .=
+        '<a href="'
+      . $script_name
+      . '?project='
+      . $param_project
+      . '&amp;view=only&amp;id='
+      . $param_id
+      . '&amp;offset='
+      . $offset_higher
+      . '&amp;limit='
+      . $param_limit
+      . '&amp;orderby='
+      . $param_orderby
+      . '&amp;sort='
+      . $param_sort
+      . '">→</a>';
+    $result .= '</p>';
 
     return ($result);
 }
@@ -2247,83 +2285,5 @@ sub get_homepage {
               . "\n" );
     }
 
-    return ($result);
-}
-
-###########################################################################
-
-sub get_style {
-    my $result = q{<style type="text/css">
-body {
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    font-size:14px;
-    font-style:normal;
-
-    background-color:white;
-    color:#222222;
-    text-decoration:none;
-    line-height:normal;
-    font-weight:normal;
-    font-variant:normal;
-    text-transform:none;
-    margin-left:5%;
-    margin-right:5%;
-    }
-
-h1  {
-    font-size:20px;
-    }
-
-h2  {
-	font-size:16px;
-	}
-
-a   {
-	color:#2f72b0;
-	font-weight:bold;
-
-	/* without underline */
-	text-decoration:none;
-	}
-
-a:hover {
-	background-color:#ffdeff;
-	color:red;
-	}
-
-.nocolor{
-	background-color:white;
-	color:white;
-	}
-
-a:hover.nocolor{
-	background-color:white;
-	color:white;
-	}
-
-.table{
-	font-size:12px;
-
-	vertical-align:top;
-
-	border-width:thin;
-  	border-style:solid;
-  	border-color:blue;
-  	background-color:#F2F2F2;
-
-	padding-top:2px;
-	padding-bottom:2px;
-	padding-left:5px;
-	padding-right:5px;
-
-  	/* small border */
-  	border-collapse:collapse;
-
-    /* no wrap
-	white-space:nowrap;*/
-
-  	}
-
-</style>};
     return ($result);
 }
