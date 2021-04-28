@@ -3573,6 +3573,10 @@ sub error_056_arrow_as_ASCII_art {
     my $error_code = 56;
     my $pos        = -1;
 
+    if ($lc_text =~ /\{\{\s*chem2/i) { # ignore template 'Chem2'
+        return ();
+    }
+
     $pos = index( $lc_text, '->' );
     $pos = index( $lc_text, '<-' ) if $pos == -1;
     $pos = index( $lc_text, '<=' ) if $pos == -1;
