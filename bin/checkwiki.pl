@@ -3576,7 +3576,7 @@ sub error_056_arrow_as_ASCII_art {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
-    			return () if (index( $lc_text, $skip_template ) > -1 );
+    			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
 
@@ -3618,7 +3618,6 @@ sub error_058_headline_with_caps {
     my $error_code = 58;
 
     foreach my $headline (@Headlines) {
-
         my $headline_nospaces =
           $headline =~ s/[^\p{Uppercase}\p{Lowercase},&]//gr;
 
@@ -3997,7 +3996,7 @@ sub error_070_isbn_wrong_length {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
-    			return () if (index( $lc_text, $skip_template ) > -1 );
+    			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
     	
