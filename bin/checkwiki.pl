@@ -3573,9 +3573,12 @@ sub error_056_arrow_as_ASCII_art {
     my $error_code = 56;
     my $pos        = -1;
 
-    if ($lc_text =~ /\{\{\s*chem2/i) { # ignore template 'Chem2'
-        return ();
-    }
+    	if ( $Template_list[$error_code][0] ne '-9999' )
+    	{
+    		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
+    			return () if (index( $lc_text, $skip_template ) > -1 );
+    		}
+    	}
 
     $pos = index( $lc_text, '->' );
     $pos = index( $lc_text, '<-' ) if $pos == -1;
@@ -3991,6 +3994,13 @@ sub error_070_isbn_wrong_length {
     my $error_code = 70;
 
     if ( $ErrorPriority[$error_code] > 0 ) {
+    	if ( $Template_list[$error_code][0] ne '-9999' )
+    	{
+    		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
+    			return () if (index( $lc_text, $skip_template ) > -1 );
+    		}
+    	}
+    	
         if ( ( $page_namespace == 0 or $page_namespace == 104 )
             and $found_text ne q{} )
         {
