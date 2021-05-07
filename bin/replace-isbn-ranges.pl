@@ -33,6 +33,11 @@ my $response;
 my $ua = LWP::UserAgent->new;
 $response = $ua->get($url);
 
+if ($response->code != 200) {
+	print 'Error response = ' . $response->code;
+	die;
+}
+
 my $content = $response->content;
 
 my $outfile = '/data/project/checkwiki/perl/lib/perl5/Business/ISBN/RangeMessage.xml';

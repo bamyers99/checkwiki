@@ -9,3 +9,4 @@ PATH=/data/project/checkwiki/bin:/usr/local/bin:/usr/bin:/bin
 03,33 * * * *                    /usr/bin/jsub -N update_html -once -j y -o /dev/null /data/project/checkwiki/bin/update_html.pl          -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
 05 00 * * *                      jlocal /data/project/checkwiki/bin/delay-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
 00 00,06,12,18 * * *             jlocal perl /data/project/checkwiki/bin/dump-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg > /dev/null 2>&1
+02 0 10 * *                      /usr/bin/jsub -N replace-isbn -once -j y -o /dev/null /data/project/checkwiki/bin/replace-isbn-ranges.pl > /dev/null 2>&1
