@@ -4039,6 +4039,13 @@ sub error_072_isbn_10_wrong_checksum {
     my $error_code = 72;
 
     if ( $ErrorPriority[$error_code] > 0 ) {
+    	if ( $Template_list[$error_code][0] ne '-9999' )
+    	{
+    		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
+    			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
+    		}
+    	}
+
         if ( ( $page_namespace == 0 or $page_namespace == 104 )
             and $found_text ne q{} )
         {
