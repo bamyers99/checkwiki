@@ -4031,7 +4031,7 @@ sub error_071_isbn_wrong_pos_X {
 }
 
 ###########################################################################
-## ERROR 71
+## ERROR 72
 ###########################################################################
 
 sub error_072_isbn_10_wrong_checksum {
@@ -4865,7 +4865,7 @@ sub error_105_headline_start_begin {
 
         # Check if ref is part of the heading.
         # Refs can go over multiple lines.
-        if ( $line =~ /==\s*$/ ) {
+        if ( $line =~ /==\s*$/ and $line !~ /https?:\/\//i) { # ignore urls that end with base64 encoding ==
             if ( $line !~ /^==/ ) {
                 if ( $line !~ /<\/ref>\s*=*$/ ) {
                     my $end = rindex ( $line, '==' ) + 2;
