@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#! /usr/bin/env perl
 ###########################################################################
 ##
 ##         FILE: checkarticle.pl
@@ -45,7 +45,7 @@ if ( $article ne q{''} ) {
 `/usr/bin/perl /data/project/checkwiki/bin/checkwiki.pl --load article  --article "$article" -c /data/project/checkwiki/checkwiki.cfg --project $project`;
 }
 
-print "Content Type: text/html; charset=UTF-8\n\n";
+print "Content-type: text/plain; charset=UTF-8\n\n";
 
 if ( defined( $myarray[0] ) ) {
     foreach my $error (@myarray) {

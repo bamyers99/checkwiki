@@ -2368,6 +2368,7 @@ sub error_008_headline_start_end {
     my $error_code = 8;
 
     foreach my $line (@Headlines) {
+    	$line = strip_include_tags($line); # requested by ruwiki
 
         if ( $line =~ /^==/
             and not( $line =~ /==\s*$/ ) )
@@ -5193,6 +5194,17 @@ sub text_reduce_to_end {
     else {
         return $s;
     }
+}
+
+######################################################################
+
+# Strip include tags from input
+sub strip_include_tags {
+	my ( $stripee ) = @_;
+		
+	$stripee =~ s/<\s*\/?\s*(?:noinclude|onlyinclude|includeonly)\s?>//g;
+	
+	return $stripee;
 }
 
 ######################################################################
