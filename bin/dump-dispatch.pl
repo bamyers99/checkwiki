@@ -189,6 +189,7 @@ sub queueUp {
         'jsub',
         '-j',         'y',
         '-mem',       '3072m',
+        '-release',	  'buster',
         '-N',         $project . '-munch',
         '-o',         '/data/project/checkwiki/var/log',
         '-once',      '/data/project/checkwiki/bin/checkwiki.pl',
@@ -208,8 +209,8 @@ sub queueUp {
     print "--config, /data/project/checkwiki/checkwiki.cfg\n";
     print "--load dump\n";
     print '--project,' . $project . "\n";
-    print '--dumpfile,' . $file . "\n";
-    print "--tt,\n\n\n";
+    print '--dumpfile,' . $file . "\n\n\n";
+    #print "--tt,\n\n\n";
 
     return();
 }

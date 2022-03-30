@@ -27,6 +27,7 @@ foreach my $project (@ProjectList) {
         '-j',             'y',
 #        '-l',             'release=trusty',
         '-mem',           '3048m',
+        '-release',		  'buster',
         '-N',             $project . '-delay',
         '-o',             '/data/project/checkwiki/var/log',
         '-once',          '/data/project/checkwiki/bin/checkwiki.pl',
