@@ -81,13 +81,6 @@ foreach (@Projects) {
         my $lastDump = $Last_Dump[$count];
         my $projectid = $ProjectIds[$count];
         my ( $latestDumpDate, $latestDumpFilename ) = FindLatestDump();
-
-        print 'PROJECT:'
-          . $project
-          . '  LASTDUMP'
-          . $lastDump
-          . '  LATEST:'
-          . $latestDumpDate . "\n";
           
         if ( !defined($lastDump) || $lastDump ne $latestDumpDate ) {
             queueUp( $latestDumpDate, $latestDumpFilename, $projectid );
@@ -199,7 +192,7 @@ sub queueUp {
     $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
     
     # dual thread dump scans to allow other jobs to have resources
-    my $jobname = $projectid % 2 ? 'dumpscan1' : 'dumpscan2';
+    my $jobname = $projectid % 2 ? 'cw-dumpscan1' : 'cw-dumpscan2';
      
     $response = $ua->post($url, [
     		name => $jobname,
@@ -211,7 +204,7 @@ sub queueUp {
     
     print '--project=' . $project . ' --dumpfile=' . $file . "\n";
     
-    if ($response->code < 200 || $response->code >= 300) {print 'dispatch failed ' . $response->content};
+    if ($response->code < 200 || $response->code >= 300) {print 'dispatch failed ' . $response->code . ' ' . $response->content};
 
     return();
 }
