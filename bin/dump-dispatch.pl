@@ -34,6 +34,7 @@ binmode( STDOUT, ':encoding(UTF-8)' );
 
 my @Projects;
 my @Last_Dump;
+my @ProjectIds;
 
 #Database configuration
 my ( $DbName, $DbServer, $DbUsername, $DbPassword, $config_name, $dbh );
@@ -68,7 +69,6 @@ open_db();
 get_projects();
 
 my $count        = 0;
-my $queued_count = 0;
 my $project;
 
 foreach (@Projects) {
@@ -79,6 +79,7 @@ foreach (@Projects) {
         and $project ne 'dewiki' )
     {
         my $lastDump = $Last_Dump[$count];
+        my $projectid = $ProjectIds[$count];
         my ( $latestDumpDate, $latestDumpFilename ) = FindLatestDump();
 
         print 'PROJECT:'
@@ -87,11 +88,9 @@ foreach (@Projects) {
           . $lastDump
           . '  LATEST:'
           . $latestDumpDate . "\n";
-        if ( $queued_count < 10 ) {    # Queue max is 16 jobs at one time.
-            if ( !defined($lastDump) || $lastDump ne $latestDumpDate ) {
-                queueUp( $latestDumpDate, $latestDumpFilename );
-                $queued_count++;
-            }
+          
+        if ( !defined($lastDump) || $lastDump ne $latestDumpDate ) {
+            queueUp( $latestDumpDate, $latestDumpFilename, $projectid );
         }
     }
     $count++;
@@ -140,18 +139,20 @@ sub close_db {
 
 sub get_projects {
 
-    my $sth = $dbh->prepare('SELECT Project, Last_Dump FROM cw_overview;')
+    my $sth = $dbh->prepare('SELECT Project, Last_Dump, id FROM cw_overview;')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute
       or die "Cannot execute: $sth->errstr\n";
 
-    my ( $project_sql, $last_dump_sql );
+    my ( $project_sql, $last_dump_sql, $projectid_sql );
     $sth->bind_col( 1, \$project_sql );
     $sth->bind_col( 2, \$last_dump_sql );
+    $sth->bind_col( 3, \$projectid_sql );
 
     while ( $sth->fetchrow_arrayref ) {
         push( @Projects,  $project_sql );
         push( @Last_Dump, $last_dump_sql );
+        push( @ProjectIds, $projectid_sql );
     }
 
     return ();
@@ -185,22 +186,7 @@ m!/public/dumps/public/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/\Q$project\E-\1-pag
 ###########################################################################
 
 sub queueUp {
-    my ( $date, $file ) = @_;
-
-    system(
-        'jsub',
-        '-j',         'y',
-        '-mem',       '3072m',
-        '-release',	  'buster',
-        '-N',         $project . '-munch',
-        '-o',         '/data/project/checkwiki/var/log',
-        '-once',      '/data/project/checkwiki/bin/checkwiki.pl',
-        '--config',   '/data/project/checkwiki/checkwiki.cfg',
-        '--load',     'dump',
-        '--project',  $project,
-        '--dumpfile', $file,
-#        '--tt',
-    );
+    my ( $date, $file, $projectid ) = @_;
     
     my $url = 'https://jobs.svc.tools.eqiad1.wikimedia.cloud:30001/api/v1/run/';
     my $response;
@@ -213,38 +199,19 @@ sub queueUp {
     $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
     
     # dual thread dump scans to allow other jobs to have resources
+    my $jobname = $projectid % 2 ? 'dumpscan1' : 'dumpscan2';
      
     $response = $ua->post($url, [
-    		name => "dumpscan1",
+    		name => $jobname,
     		imagename => 'tf-perl532',
     		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
     		memory => '2Gi',
     		cpu => '250m'
     	]);
     
-    if ($response->code < 200 || $response->code >= 300) {
-	    $response = $ua->post($url, [
-	    		name => "dumpscan2",
-	    		imagename => 'tf-perl532',
-	    		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
-	    		memory => '2Gi',
-	    		cpu => '250m'
-	    	]);    	
-    };
+    print '--project=' . $project . ' --dumpfile=' . $file . "\n";
     
-    if ($response->code < 200 || $response->code >= 300) {print "dispatch failed " . $response->content};
-
-    print "/usr/bin/jsub\n";
-    print "-j, y\n";
-    print "-mem, 3072m\n";
-    print '-N, ' . $project . "-munch\n";
-    print "-o, /data/project/checkwiki/var/log\n";
-    print "-once /data/project/checkwiki/bin/checkwiki.pl\n";
-    print "--config, /data/project/checkwiki/checkwiki.cfg\n";
-    print "--load dump\n";
-    print '--project,' . $project . "\n";
-    print '--dumpfile,' . $file . "\n\n\n";
-    #print "--tt,\n\n\n";
+    if ($response->code < 200 || $response->code >= 300) {print 'dispatch failed ' . $response->content};
 
     return();
 }
