@@ -1,0 +1,2 @@
+# Dump processor wrapper to specify output file since 'toolforge-jobs run' does not support that option
+/data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load dump --project "$1" --dumpfile "$2" > /data/project/checkwiki/var/log/${1}-munch 2>&1

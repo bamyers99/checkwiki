@@ -23,6 +23,8 @@ use DBI;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
 use feature 'unicode_strings';
+use LWP::UserAgent;
+use IO::Socket::SSL;
 
 binmode( STDOUT, ':encoding(UTF-8)' );
 
@@ -199,6 +201,38 @@ sub queueUp {
         '--dumpfile', $file,
 #        '--tt',
     );
+    
+    my $url = 'https://jobs.svc.tools.eqiad1.wikimedia.cloud:30001/api/v1/run/';
+    my $response;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->ssl_opts(verify_hostname => 0);
+    $ua->ssl_opts(SSL_cert_file => '/data/project/checkwiki/.toolskube/client.crt');
+    $ua->ssl_opts(SSL_key_file => '/data/project/checkwiki/.toolskube/client.key');
+    $ua->ssl_opts(SSL_use_cert => 1);
+    $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
+    
+    # dual thread dump scans to allow other jobs to have resources
+     
+    $response = $ua->post($url, [
+    		name => "dumpscan1",
+    		imagename => 'tf-perl532',
+    		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
+    		memory => '2Gi',
+    		cpu => '250m'
+    	]);
+    
+    if ($response->code < 200 || $response->code >= 300) {
+	    $response = $ua->post($url, [
+	    		name => "dumpscan2",
+	    		imagename => 'tf-perl532',
+	    		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
+	    		memory => '2Gi',
+	    		cpu => '250m'
+	    	]);    	
+    };
+    
+    if ($response->code < 200 || $response->code >= 300) {print "dispatch failed " . $response->content};
 
     print "/usr/bin/jsub\n";
     print "-j, y\n";
