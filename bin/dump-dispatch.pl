@@ -199,7 +199,7 @@ sub queueUp {
     		imagename => 'tf-perl532',
     		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
     		memory => '2Gi',
-    		cpu => '250m'
+    		cpu => '500m'
     	]);
     
     print '--project=' . $project . ' --dumpfile=' . $file . "\n";
