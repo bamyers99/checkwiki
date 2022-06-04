@@ -199,7 +199,7 @@ sub queueUp {
     		imagename => 'tf-perl532',
     		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
     		memory => '2Gi',
-    		cpu => '500m'
+    		cpu => '499m' # hack to get job submitter to allocate requests cpu = limit cpu instead of cpu / 2
     	]);
     
     print '--project=' . $project . ' --dumpfile=' . $file . "\n";

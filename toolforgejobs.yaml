@@ -52,7 +52,7 @@
   image: tf-perl532
   schedule: "05 00 * * *"
   emails: none
-  cpu: 500m
+  cpu: 499m
 
 - name: cw-delay-dewiki
   command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "dewiki"
