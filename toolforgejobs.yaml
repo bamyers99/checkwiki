@@ -1,7 +1,7 @@
 - name: cw-dump-dispatch
   command: /data/project/checkwiki/bin/dump-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
-  schedule: "35 * * * *"
+  schedule: "05,35 * * * *"
   emails: none
   cpu: 250m
 
