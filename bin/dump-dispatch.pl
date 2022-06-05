@@ -32,7 +32,7 @@ binmode( STDOUT, ':encoding(UTF-8)' );
 ## MAIN PROGRAM
 ##########################################################################
 
-my @Projects;
+my @Projects = qw/ eswiki frwiki arwiki cswiki plwiki bnwiki /; # give priority to live scan projects
 my @Last_Dump;
 my @ProjectIds;
 
