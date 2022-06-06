@@ -1,2 +1,16 @@
+# Copyright 2022 Myers Enterprises II
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Dump processor wrapper to specify output file since 'toolforge-jobs run' does not support that option
 /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load dump --project "$1" --dumpfile "$2" > /data/project/checkwiki/var/log/${1}-munch 2>&1

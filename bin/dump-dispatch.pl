@@ -32,7 +32,7 @@ binmode( STDOUT, ':encoding(UTF-8)' );
 ## MAIN PROGRAM
 ##########################################################################
 
-my @Projects = qw/ eswiki frwiki arwiki cswiki plwiki bnwiki /; # give priority to live scan projects
+my @Projects;
 my @Last_Dump;
 my @ProjectIds;
 
@@ -74,9 +74,15 @@ my $project;
 foreach (@Projects) {
 
     $project = $_;
-    # Due to WMFlabs incompetence, below projects are very late showing up
+    # Skip dailies
     if (    $project ne 'enwiki'
-        and $project ne 'dewiki' )
+        and $project ne 'dewiki'
+        and $project ne 'eswiki'
+        and $project ne 'frwiki'
+        and $project ne 'arwiki'
+        and $project ne 'cswiki'
+        and $project ne 'plwiki'
+        and $project ne 'bnwiki' )
     {
         my $lastDump = $Last_Dump[$count];
         my $projectid = $ProjectIds[$count];
