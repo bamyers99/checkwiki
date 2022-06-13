@@ -59,6 +59,11 @@ sub numberofarticles {
         cswiki => 200,
         plwiki => 200,
         bnwiki => 200,
+        nlwiki => 200,
+        nowiki => 200,
+        cawiki => 200,
+        hewiki => 200,
+        ruwiki => 200
     );
 
     return ();
