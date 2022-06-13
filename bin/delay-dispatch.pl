@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-my @ProjectList = qw(enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki);
+my @ProjectList = qw(enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki);
 
 foreach my $project (@ProjectList) {
 
