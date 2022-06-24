@@ -137,3 +137,17 @@
   schedule: "05 00 * * *"
   emails: none
   cpu: 125m
+
+- name: cw-delay-itwiki
+  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "itwiki"
+  image: tf-perl532
+  schedule: "05 00 * * *"
+  emails: none
+  cpu: 125m
+
+- name: cw-delay-ptwiki
+  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "ptwiki"
+  image: tf-perl532
+  schedule: "05 00 * * *"
+  emails: none
+  cpu: 125m

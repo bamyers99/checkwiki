@@ -30,7 +30,7 @@ binmode( STDOUT, ':encoding(UTF-8)' );
 my $dbh;
 
 my %Limit       = ();
-my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki /;
+my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki /;
 my @Titles;
 
 open_db();
@@ -63,7 +63,9 @@ sub numberofarticles {
         nowiki => 200,
         cawiki => 200,
         hewiki => 200,
-        ruwiki => 200
+        ruwiki => 200,
+        itwiki => 200,
+        ptwiki => 200
     );
 
     return ();
