@@ -33,16 +33,34 @@ my %Limit       = ();
 my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki /;
 my @Titles;
 
-open_db();
+my $DbName      = q{};
+my $DbServer    = q{};
+my $DbUsername  = q{};
+my $DbPassword  = q{};
+my $config_name = q{};
+
+GetOptions(
+    'database|D=s' => \$DbName,
+    'host|h=s'     => \$DbServer,
+    'password=s'   => \$DbPassword,
+    'user|u=s'     => \$DbUsername,
+    'config|c=s'   => \$config_name,
+    );
+
 numberofarticles();
 
-foreach my $item (@ProjectList) {
-    retrieveArticles($item);
-    insert_db($item);
-    undef(@Titles);
+while (1) {
+	open_db();
+	
+	foreach my $item (@ProjectList) {
+	    retrieveArticles($item);
+	    insert_db($item);
+	    undef(@Titles);
+	}
+	
+	close_db();
+	sleep(360); # 6 minutes
 }
-
-close_db();
 
 ###########################################################################
 ###
@@ -140,19 +158,6 @@ sub insert_db {
 ###########################################################################
 
 sub open_db {
-    my $DbName      = q{};
-    my $DbServer    = q{};
-    my $DbUsername  = q{};
-    my $DbPassword  = q{};
-    my $config_name = q{};
-
-    GetOptions(
-        'database|D=s' => \$DbName,
-        'host|h=s'     => \$DbServer,
-        'password=s'   => \$DbPassword,
-        'user|u=s'     => \$DbUsername,
-        'config|c=s'   => \$config_name,
-    );
 
     if ( defined $config_name ) {
         open( my $file, '<:encoding(UTF-8)', $config_name )

@@ -703,7 +703,6 @@ sub scan_pages {
 
     $end_of_dump = 'no';
     my $page = q{};
-    my $revision;
 
     if ( $Dump_or_Live eq 'dump' ) {
 
@@ -715,7 +714,7 @@ sub scan_pages {
         }
 
         while ( defined( $page = $pages->next ) && $end_of_dump eq 'no' ) {
-            next if ( $page->namespace != 0 );    #NS=0 IS ARTICLE NAMESPACE
+            next if ( $page->namespace ne '0' );    #NS=0 IS ARTICLE NAMESPACE
             set_variables_for_article();
             $title = $page->title;
             if ( $title ne q{} ) {
@@ -723,8 +722,7 @@ sub scan_pages {
 
                 #if ( $artcount > 300500 ) {
                 $page_namespace = 0;
-                $revision       = $page->revision;
-                $text           = $revision->text;
+                $text           = $page->revision->text;
                 check_article();
 
             }

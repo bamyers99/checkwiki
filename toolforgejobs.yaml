@@ -3,12 +3,18 @@
   image: tf-perl532
   schedule: "05,35 * * * *"
   emails: none
-  cpu: 250m
+  cpu: 125m
+
+- name: cw-delay-dispatch
+  command: /data/project/checkwiki/bin/delay-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg
+  image: tf-perl532
+  schedule: "07,22,37,52 * * * *"
+  emails: none
+  cpu: 125m
 
 - name: cw-live-scan
   command: /data/project/checkwiki/bin/live-scan.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
-  schedule: "01,11,18,25,30,36,42,51 * * * *"
   emails: none
   cpu: 250m
 
@@ -17,137 +23,32 @@
   image: tf-perl532
   schedule: "03 0 * * *"
   emails: none
-  cpu: 250m
+  cpu: 125m
 
 - name: cw-translation
   command: /data/project/checkwiki/bin/translation.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
   schedule: "02 0 * * *"
   emails: none
-  cpu: 250m
+  cpu: 125m
 
 - name: cw-update-db
   command: /data/project/checkwiki/bin/update_db.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
   schedule: "59,14,29,44 * * * *"
   emails: none
-  cpu: 250m
+  cpu: 125m
 
 - name: cw-update-html
   command: /data/project/checkwiki/bin/update_html.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
   schedule: "03,33 * * * *"
   emails: none
-  cpu: 250m
+  cpu: 125m
 
 - name: cw-replace-isbn
   command: /data/project/checkwiki/bin/replace-isbn-ranges.pl
   image: tf-perl532
   schedule: "02 0 10 * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-enwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "enwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 499m
-
-- name: cw-delay-dewiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "dewiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-eswiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "eswiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-frwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "frwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-arwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "arwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-cswiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "cswiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-plwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "plwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 250m
-
-- name: cw-delay-bnwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "bnwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-nlwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "nlwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-nowiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "nowiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-cawiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "cawiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-hewiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "hewiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-ruwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "ruwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-itwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "itwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
-  emails: none
-  cpu: 125m
-
-- name: cw-delay-ptwiki
-  command: /data/project/checkwiki/bin/checkwiki.pl --config /data/project/checkwiki/checkwiki.cfg --load delay --project "ptwiki"
-  image: tf-perl532
-  schedule: "05 00 * * *"
   emails: none
   cpu: 125m
