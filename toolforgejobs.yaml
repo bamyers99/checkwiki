@@ -16,6 +16,7 @@
   command: /data/project/checkwiki/bin/live-scan.pl -c /data/project/checkwiki/checkwiki.cfg
   image: tf-perl532
   emails: none
+  continuous: true
   cpu: 250m
 
 - name: cw-delete-done
