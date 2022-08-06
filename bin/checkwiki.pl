@@ -1407,8 +1407,7 @@ sub get_templates_all {
         while ( $temp_text =~ /\}\}/g ) {
 
             # Find currect end - number of {{ == }}
-            $temp_text_2 =
-              q{ } . substr( $temp_text, 0, pos($temp_text) ) . q{ };
+            $temp_text_2 = substr( $temp_text, 0, pos($temp_text) );
 
             # Test the number of {{ and }}; do not use tr/// - that does character by character transliteration
             $brackets_begin = ( $temp_text_2 =~ s/\{\{/\{\{/g );
@@ -1420,7 +1419,6 @@ sub get_templates_all {
         if ( $brackets_begin == $brackets_end ) {
 
             # Template is correct
-            $temp_text_2 = substr( $temp_text_2, 1, length($temp_text_2) - 2 );
             push( @Templates_all, $temp_text_2 );
         }
         elsif ( $found_error == 0 ) {
@@ -1564,28 +1562,38 @@ sub get_template {
             my $template_part = q{};
             my @template_part_array;
             undef(@template_part_array);
+            my $beginn_brackets = 0;
+            my $end_brackets = 0;
+            my $beginn_curly_brackets = 0;
+            my $end_curly_brackets = 0;
+            my $templace_piece = q{};
 
             foreach (@template_split) {
-                $template_part = $template_part . $_;
+            	$templace_piece = $_;
+                $template_part .= $templace_piece;
 
                 # Check for []
-                my $beginn_brackets = ( $template_part =~ tr/[/[/ );
-                my $end_brackets    = ( $template_part =~ tr/]/]/ );
+                $beginn_brackets += ( $templace_piece =~ tr/[/[/ );
+                $end_brackets    += ( $templace_piece =~ tr/]/]/ );
 
                 # Check for {}
-                my $beginn_curly_brackets = ( $template_part =~ tr/{/{/ );
-                my $end_curly_brackets    = ( $template_part =~ tr/}/}/ );
+                $beginn_curly_brackets += ( $templace_piece =~ tr/{/{/ );
+                $end_curly_brackets    += ( $templace_piece =~ tr/}/}/ );
 
                 # Template part complete ?
                 if (    $beginn_brackets eq $end_brackets
                     and $beginn_curly_brackets eq $end_curly_brackets )
                 {
-
                     push( @template_part_array, $template_part );
+                    
                     $template_part = q{};
+		            $beginn_brackets = 0;
+		            $end_brackets = 0;
+		            $beginn_curly_brackets = 0;
+		            $end_curly_brackets = 0;
                 }
                 else {
-                    $template_part = $template_part . q{|};
+                    $template_part .= q{|};
                 }
 
             }
@@ -5140,10 +5148,9 @@ sub error_register {
 
 sub insert_into_db {
     my ( $code, $notice ) = @_;
-    my ( $sth, $date_found, $article_title );
+    my $sth;
 
     $notice = substr( $notice, 0, 100 );    # Truncate notice.
-    $article_title = $title;
 
     # Problem: sql-command insert, apostrophe ' or backslash \ in text
     #$article_title =~ s/\\/\\\\/g;
@@ -5157,17 +5164,15 @@ sub insert_into_db {
     $notice =~ s/\"/&quot;/g;
 
     if ( $Dump_or_Live eq 'live' or $Dump_or_Live eq 'delay' ) {
-        $date_found = strftime( '%F %T', gmtime() );
         $sth = $dbh->prepare(
             'INSERT IGNORE INTO cw_error VALUES (?, ?, ?, ?, 0, ?)');
     }
     else {
-        $date_found = $time_found;
         $sth        = $dbh->prepare(
             'INSERT IGNORE INTO cw_dumpscan VALUES (?, ?, ?, ?, 0, ?)');
     }
 
-    $sth->execute( $project, $article_title, $code, $notice, $time_found );
+    $sth->execute( $project, $title, $code, $notice, $time_found );
 
     return ();
 }
