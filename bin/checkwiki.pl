@@ -4112,21 +4112,18 @@ sub error_075_indented_list {
 
         foreach my $line (@Lines) {
 
-            if ( index( $line, q{*} ) == 0 or index( $line, q{#} ) == 0 ) {
-                $list = 1;
-            }
-            elsif ( $list == 1
-                and ( $line ne q{} and index( $line, q{:} ) != 0 ) )
-            {
-                $list = 0;
-            }
-
-            if ( $list == 1
-                and
-                ( index( $line, q{:*} ) == 0 or index( $line, q{:#} ) == 0 ) )
-            {
-                error_register( $error_code, substr( $line, 0, 40 ) );
-            }
+			if ( index( $line, q{*} ) == 0 or index( $line, q{#} ) == 0 ) {
+			    $list = 1;
+			}
+			elsif ( $list == 1 and $line ne q{} )
+			{
+			    if ( index( $line, q{:*} ) == 0 or index( $line, q{:#} ) == 0 ) {
+			        error_register( $error_code, substr( $line, 0, 40 ) );
+			    }
+			    else {
+			        $list = 0;
+			    }
+			}
         }
     }
 
