@@ -3886,7 +3886,7 @@ sub error_067_ref_after_punctuation {
         my @codes = @{ $Template_list[$error_code] };
 
         foreach my $temp (@codes) {
-            $test_text =~ s/${temp}\s*<ref[ >]//sg;
+            $test_text =~ s/\Q$temp\E\s*<ref[ >]//sg;
         }
 
         if ( $test_text =~ /[ ]{0,2}([\.,\?:!;])[ ]{0,2}<ref[ >]/ ) {
