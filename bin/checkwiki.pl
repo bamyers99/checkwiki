@@ -4604,7 +4604,7 @@ sub error_094_ref_no_correct_match {
     my $error_code = 94;
 
     my $ref_begin = () = $lc_text =~ /<ref\b[^<>]*(?<!\/)>/g;
-    my $ref_end   = () = $lc_text =~ /<\/ref>/g;
+    my $ref_end   = () = $lc_text =~ /<\/ref\s*>/g;
     
     if ( $ref_begin != $ref_end ) {
         # Do a slower search, gets rid of stubs, works if < or > in ref name
