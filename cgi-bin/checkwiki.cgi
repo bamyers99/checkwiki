@@ -748,7 +748,7 @@ sub begin_html {
     print "\n";
     print "<!DOCTYPE html>\n";
     print qq{<html lang="$lang">\n};
-    print qq{<head>\n<meta charset=\"UTF-8\" />\n};
+    print qq{<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n};
     print "<title>Check Wikipedia</title>\n";
 
     if ( $param_view ne 'bots' ) {
