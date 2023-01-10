@@ -4871,7 +4871,7 @@ sub error_105_headline_start_begin {
         # Refs can go over multiple lines.
         if ( $line =~ /==\s*$/ and $line !~ /https?:\/\//i) { # ignore urls that end with base64 encoding ==
             if ( $line !~ /^==/ ) {
-                if ( $line !~ /<\/ref>\s*=*$/ ) {
+                if ( $line !~ /<\/ref>\s*=*$/ and $line =~ /^\s*==/) { # only check for whitespace @ beginning of heading, ignore stuff in templates
                     my $end = rindex ( $line, '==' ) + 2;
                     my $start = $end - 40;
                     $start = 0 if ($start < 0 );
