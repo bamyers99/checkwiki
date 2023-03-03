@@ -22,7 +22,7 @@ use HTTP::Request;
 use LWP::UserAgent;
 
 sub build_yaml {
-    my ( $jobname, $command, $cpu, $mem ) = @_;
+    my ( $jobname, $command, $mem, $cpu ) = @_;
     $jobname =~ s/"/\\"/g;
     $command =~ s/"/\\"/g;
     
