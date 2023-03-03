@@ -19,6 +19,7 @@
 use strict;
 use warnings;
 
+use lib '/data/project/checkwiki/bin';
 use DBI;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
