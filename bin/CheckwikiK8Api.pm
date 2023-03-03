@@ -24,7 +24,6 @@ sub build_yaml {
     my ( $jobname, $command, $cpu, $mem ) = @_;
     
     my $yaml = <<"END_YAML";
-    
     	{
         "apiVersion" : "batch/v1",
         "kind" : "Job",
@@ -46,7 +45,7 @@ sub build_yaml {
             "ttlSecondsAfterFinished" : 30,
             "backoffLimit" : 0,
             "template" : {
-                "metadata" : {"labels" {
+                "metadata" : {"labels" : {
 			        "toolforge" : "tool",
 			        "app.kubernetes.io/version" : "1",
 			        "app.kubernetes.io/managed-by" : "toolforge-jobs-framework",
@@ -59,7 +58,7 @@ sub build_yaml {
     			},
                 "spec" : {
                     "restartPolicy" : "Never",
-                    "containers" : {
+                    "containers" : [
                         {
                             "name" : "$jobname",
                             "image" : "docker-registry.tools.wmflabs.org/toolforge-perl532-sssd-base:latest",
@@ -72,17 +71,16 @@ sub build_yaml {
                                 "requests" : {"cpu" : "$cpu", "memory" : "$mem"}
                             }
                         }
-                    },
-                    "volumes" : {
+                    ],
+                    "volumes" : [
                         {
-                        "name" : "home", "hostPath" : {"path" : "/data/project", "type" : "Directory"},
+                        "name" : "home", "hostPath" : {"path" : "/data/project", "type" : "Directory"}
                         }
-                    },
-                },
+                    ]
+                }
             }
         }
     }
-
 END_YAML
     
     return $yaml;
