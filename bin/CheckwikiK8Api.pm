@@ -18,6 +18,7 @@ use strict;
 package CheckwikiK8Api;
 
 use IO::Socket::SSL;
+use HTTP::Request;
 use LWP::UserAgent;
 
 sub build_yaml {
@@ -90,6 +91,9 @@ sub send_yaml {
     my ( $yaml ) = @_;
 	my $url = 'https://k8s.tools.eqiad1.wikimedia.cloud:6443/apis/batch/v1/namespaces/tool-checkwiki/jobs';
     my $response;
+	my $req = HTTP::Request->new(POST => $url);
+	$req->content_type('application/json');
+	$req->content($yaml);
 
     my $ua = LWP::UserAgent->new;
     $ua->agent('checkwiki (k8s api)');
@@ -101,7 +105,7 @@ sub send_yaml {
     $ua->ssl_opts(SSL_use_cert => 1);
     $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
     
-    $response = $ua->post($url);
+    $response = $ua->request($req);
 	
 	return $response;
 }
