@@ -22,9 +22,8 @@ use DBI;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
 use feature 'unicode_strings';
-use LWP::UserAgent;
-use IO::Socket::SSL;
 use POSIX qw(strftime);
+use CheckwikiK8Api;
 
 my @ProjectList = qw(enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki);
 
@@ -126,24 +125,11 @@ sub close_db {
 sub queueUp {
     my ( $project ) = @_;
     
-    my $url = 'https://jobs.svc.tools.eqiad1.wikimedia.cloud:30001/api/v1/run/';
-    my $response;
-
-    my $ua = LWP::UserAgent->new;
-    $ua->ssl_opts(verify_hostname => 0);
-    $ua->ssl_opts(SSL_cert_file => '/data/project/checkwiki/.toolskube/client.crt');
-    $ua->ssl_opts(SSL_key_file => '/data/project/checkwiki/.toolskube/client.key');
-    $ua->ssl_opts(SSL_use_cert => 1);
-    $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
-    
-    $response = $ua->post($url, [
-    		name => 'cw-delay-' . $project,
-    		imagename => 'tf-perl532',
-    		cmd => "/data/project/checkwiki/bin/delaywrapper.sh \"$project\"",
-    		memory => '512Mi',
-    		cpu => '250m'
-    	]);
-    
+    my $yaml = CheckwikiK8Api::build_yaml('cw-delay-' . $project, "/data/project/checkwiki/bin/delaywrapper.sh \"$project\"",
+    	'512Mi', '250m');
+    	
+    my $response = CheckwikiK8Api::send_yaml($yaml);
+        
     print '--project=' . $project . "\n";
     
     if ($response->code < 200 || $response->code >= 300) {print 'dispatch failed ' . $response->code . ' ' . $response->content};

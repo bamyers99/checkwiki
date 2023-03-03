@@ -23,8 +23,7 @@ use DBI;
 use Getopt::Long
   qw(GetOptionsFromString :config bundling no_auto_abbrev no_ignore_case);
 use feature 'unicode_strings';
-use LWP::UserAgent;
-use IO::Socket::SSL;
+use CheckwikiK8Api;
 
 binmode( STDOUT, ':encoding(UTF-8)' );
 
@@ -194,26 +193,13 @@ m!/public/dumps/public/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/\Q$project\E-\1-pag
 sub queueUp {
     my ( $date, $file, $projectid ) = @_;
     
-    my $url = 'https://jobs.svc.tools.eqiad1.wikimedia.cloud:30001/api/v1/run/';
-    my $response;
-
-    my $ua = LWP::UserAgent->new;
-    $ua->ssl_opts(verify_hostname => 0);
-    $ua->ssl_opts(SSL_cert_file => '/data/project/checkwiki/.toolskube/client.crt');
-    $ua->ssl_opts(SSL_key_file => '/data/project/checkwiki/.toolskube/client.key');
-    $ua->ssl_opts(SSL_use_cert => 1);
-    $ua->ssl_opts(SSL_verify_mode => SSL_VERIFY_NONE);
-    
     # dual thread dump scans to allow other jobs to have resources
     my $jobname = $projectid % 2 ? 'cw-dumpscan1' : 'cw-dumpscan2';
      
-    $response = $ua->post($url, [
-    		name => $jobname,
-    		imagename => 'tf-perl532',
-    		cmd => "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
-    		memory => '2Gi',
-    		cpu => '250m'
-    	]);
+    my $yaml = CheckwikiK8Api::build_yaml($jobname, "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
+    	'2Gi', '250m');
+    	
+    my $response = CheckwikiK8Api::send_yaml($yaml);
     
     print '--project=' . $project . ' --dumpfile=' . $file . "\n";
     
