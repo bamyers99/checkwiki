@@ -23,6 +23,8 @@ use LWP::UserAgent;
 
 sub build_yaml {
     my ( $jobname, $command, $cpu, $mem ) = @_;
+    $jobname =~ s/"/\\"/g;
+    $command =~ s/"/\\"/g;
     
     my $yaml = <<"END_YAML";
     	{
