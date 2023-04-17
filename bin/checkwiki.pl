@@ -586,7 +586,8 @@ sub readMetadata {
     $ServerName = $project;
     if (
         !(
-               $ServerName =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
+               $ServerName =~ s/^metawiki$/meta.wikimedia.org/
+            || $ServerName =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
             || $ServerName =~ s/^([[:lower:]]+)wiki$/$1.wikipedia.org/
             || $ServerName =~ s/^([[:lower:]]+)wikisource$/$1.wikisource.org/
             || $ServerName =~ s/^([[:lower:]]+)wikiversity$/$1.wikiversity.org/

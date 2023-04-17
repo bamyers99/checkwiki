@@ -765,7 +765,8 @@ sub raw_text {
     $title =~ s/&quot;/"/g;
     if (
         !(
-               $servername =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
+               $servername =~ s/^metawiki$/meta.wikimedia.org/
+            || $servername =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
             || $servername =~ s/^([a-z]+)wiki$/$1.wikipedia.org/
             || $servername =~ s/^([a-z]+)wikisource$/$1.wikisource.org/
             || $servername =~ s/^([a-z]+)wikiversity$/$1.wikiversity.org/

@@ -92,7 +92,8 @@ foreach (@Projects) {
     my $ServerName = $project;
     if (
         !(
-               $ServerName =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
+               $ServerName =~ s/^metawiki$/meta.wikimedia.org/
+            || $ServerName =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
             || $ServerName =~ s/^([a-z]+)wiki$/$1.wikipedia.org/
             || $ServerName =~ s/^([a-z]+)wikisource$/$1.wikisource.org/
             || $ServerName =~ s/^([a-z]+)wikiversity$/$1.wikiversity.org/

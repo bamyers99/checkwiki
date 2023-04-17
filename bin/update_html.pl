@@ -265,7 +265,8 @@ sub get_homepage {
 
     if (
         !(
-               $result =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
+               $result =~ s/^metawiki$/meta.wikimedia.org/
+            || $result =~ s/^nds_nlwiki$/nds-nl.wikipedia.org/
             || $result =~ s/^commonswiki$/commons.wikimedia.org/
             || $result =~ s/^([[:lower:]]+)wiki$/$1.wikipedia.org/
             || $result =~ s/^([[:lower:]]+)wikisource$/$1.wikisource.org/
