@@ -2922,7 +2922,7 @@ sub error_031_html_table_element {
             error_register( $error_code, $test_text );
         }
     }
-    elsif ( index( $lc_text, '<tr' ) > -1 ) {
+    elsif ( $lc_text =~ /<tr[> ]/ ) {
 
         # <tr> in templates can be the only way to do a table.
         my $test_text = $text;
