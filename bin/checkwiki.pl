@@ -3887,11 +3887,15 @@ sub error_067_ref_after_punctuation {
         my @codes = @{ $Template_list[$error_code] };
 
         foreach my $temp (@codes) {
-            $test_text =~ s/\Q$temp\E\s*<ref[ >]//sg;
+            $test_text =~ s/\b\Q$temp\E\s*<ref[ >]//sg;
         }
 
-        if ( $test_text =~ /[ ]{0,2}([\.,\?:!;])[ ]{0,2}<ref[ >]/ ) {
-            error_register( $error_code, substr( $test_text, $-[0], 40 ) );
+        # capture 10 leading chars so can check for HTML entity
+        if ( $test_text =~ /.{9}[^\n][ ]{0,2}([\.,\?:!;])[ ]{0,2}<ref[ >]/ ) {
+        	my $captured = substr( $test_text, $-[0], 50 );
+        	if ( $captured !~ /(&.+;)/i ) {
+            	error_register( $error_code, $captured );
+        	}
         }
     }
 
