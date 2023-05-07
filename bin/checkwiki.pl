@@ -3880,6 +3880,7 @@ sub error_066_image_description_with_full_small {
 
 sub error_067_ref_after_punctuation {
     my $error_code = 67;
+    my $project_regex;
 
     my $test_text = lc($text);
     if ( $Template_list[$error_code][0] ne '-9999' ) {
@@ -3889,9 +3890,13 @@ sub error_067_ref_after_punctuation {
         foreach my $temp (@codes) {
             $test_text =~ s/\b\Q$temp\E\s*<ref[ >]//sg;
         }
+        
+        if ( $project ne 'frwiki' ) {
+        	$project_regex = '?!';
+        }
 
         # capture 10 leading chars so can check for HTML entity
-        if ( $test_text =~ /.{9}[^\n][ ]{0,2}([\.,\?:!;])[ ]{0,2}<ref[ >]/ ) {
+        if ( $test_text =~ /.{9}[^\n][ ]{0,2}([\.,:;$project_regex])[ ]{0,2}<ref[ >]/ ) {
         	my $captured = substr( $test_text, $-[0], 50 );
         	if ( $captured !~ /(&.+;)/i ) {
             	error_register( $error_code, $captured );
