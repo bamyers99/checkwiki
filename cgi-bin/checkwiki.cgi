@@ -2278,6 +2278,7 @@ sub get_homepage {
             || $result =~ s/^([[:lower:]]+)wikiversity$/$1.wikiversity.org/
             || $result =~ s/^([[:lower:]]+)wiktionary$/$1.wiktionary.org/
             || $result =~ s/^([[:lower:]]+)wikivoyage$/$1.wikivoyage.org/
+            || $result =~ s/^([[:lower:]]+)wikiquote$/$1.wikiquote.org/
         )
       )
     {

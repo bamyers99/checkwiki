@@ -107,6 +107,7 @@ sub retrieveArticles {
             || $servername =~ s/^([[:lower:]]+)wikiversity$/$1.wikiversity.org/
             || $servername =~ s/^([[:lower:]]+)wiktionary$/$1.wiktionary.org/
             || $servername =~ s/^([[:lower:]]+)wikivoyage$/$1.wikivoyage.org/
+            || $servername =~ s/^([[:lower:]]+)wikiquote$/$1.wikiquote.org/
         )
       )
     {

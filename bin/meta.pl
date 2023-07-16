@@ -99,6 +99,7 @@ foreach (@Projects) {
             || $ServerName =~ s/^([a-z]+)wikiversity$/$1.wikiversity.org/
             || $ServerName =~ s/^([a-z]+)wiktionary$/$1.wiktionary.org/
             || $ServerName =~ s/^([a-z]+)wikivoyage$/$1.wikivoyage.org/
+            || $ServerName =~ s/^([a-z]+)wikiquote$/$1.wikiquote.org/
         )
       )
     {

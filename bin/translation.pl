@@ -772,6 +772,7 @@ sub raw_text {
             || $servername =~ s/^([a-z]+)wikiversity$/$1.wikiversity.org/
             || $servername =~ s/^([a-z]+)wiktionary$/$1.wiktionary.org/
             || $servername =~ s/^([a-z]+)wikivoyage$/$1.wikivoyage.org/
+            || $servername =~ s/^([a-z]+)wikiquote$/$1.wikiquote.org/
         )
       )
     {
