@@ -54,6 +54,7 @@ my $end_of_dump = q{};     # When last article from dump reached
 my $artcount    = 0;       # Number of articles processed
 my $file_size   = 0;       # How many MB of the dump has been processed.
 my $mediawiki_api;
+my $dumpbig = 0;
 
 # Database configuration
 my $DbName;
@@ -496,7 +497,7 @@ sub set_variables_for_article {
 
 sub update_table_cw_error_from_dump {
 
-    if ( $Dump_or_Live eq 'dump' ) {
+    if ( $Dump_or_Live eq 'dump' && $dumpbig != 1) {
 
         my $sth = $dbh->prepare('DELETE FROM cw_error WHERE Project = ?;');
         $sth->execute($project);
@@ -5157,6 +5158,12 @@ sub error_register {
 sub insert_into_db {
     my ( $code, $notice ) = @_;
     my $sth;
+    
+    if ($dumpbig == 1) {
+    	$sth = $dbh->prepare('INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);');
+    	$sth->execute( $project, $title );
+    	return ();
+    }
 
     $notice = substr( $notice, 0, 100 );    # Truncate notice.
 
@@ -5338,7 +5345,8 @@ if ( !defined($project) ) {
     die("$0: No project name, for example: \"-p dewiki\"\n");
 }
 
-if ( $load_mode eq 'dump' ) {
+if ( $load_mode eq 'dump' || $load_mode eq 'dumpbig') {
+	$dumpbig = 1 if ($load_mode eq 'dumpbig');
     $Dump_or_Live = 'dump';
     require MediaWiki::DumpFile::Pages;
 
