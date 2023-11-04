@@ -1416,7 +1416,7 @@ sub get_templates_all {
             $brackets_begin = ( $temp_text_2 =~ s/\{\{/\{\{/g );
             $brackets_end   = ( $temp_text_2 =~ s/\}\}/\}\}/g );
 
-            last if ( $brackets_begin == $brackets_end );
+            last if ( $brackets_begin == $brackets_end || abs($brackets_begin - $brackets_end) > 10);
         }
 
         if ( $brackets_begin == $brackets_end ) {
@@ -1442,6 +1442,11 @@ sub get_templates_all {
                 error_043_template_no_correct_end($begin_string);
             }
         }
+        else {
+        	$found_error++;
+        }
+        
+        last if ( $found_error > 10);
     }
     
     # Strip templates listed for #43
