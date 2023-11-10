@@ -26,7 +26,7 @@ use feature 'unicode_strings';
 use POSIX qw(strftime);
 use CheckwikiK8Api;
 
-my @ProjectList = qw(enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki);
+my @ProjectList = qw(enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki ukwiki);
 
 my $cur_date = strftime( '%F', gmtime() );
 

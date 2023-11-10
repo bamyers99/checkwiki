@@ -30,7 +30,7 @@ binmode( STDOUT, ':encoding(UTF-8)' );
 my $dbh;
 
 my %Limit       = ();
-my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki /;
+my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki ukwiki/;
 my @Titles;
 
 my $DbName      = q{};

@@ -89,6 +89,7 @@ foreach (@Projects) {
         and $project ne 'hewiki'
         and $project ne 'itwiki'
         and $project ne 'ptwiki'
+        and $project ne 'ukwiki'
         and $project ne 'ruwiki' )
     {
         my $lastDump = $Last_Dump[$count];
