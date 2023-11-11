@@ -83,7 +83,8 @@ sub numberofarticles {
         hewiki => 200,
         ruwiki => 200,
         itwiki => 200,
-        ptwiki => 200
+        ptwiki => 200,
+        ukwiki => 200
     );
 
     return ();
