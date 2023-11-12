@@ -15,7 +15,7 @@
 # Dump processor wrapper to specify output file since 'toolforge-jobs run' does not support that option
 LOADMODE="dump"
 
-if [ $1 -eq "dumpbig" ]
+if [ "$1" = "dumpbig" ]
   then
     LOADMODE="dumpbig"
     shift
