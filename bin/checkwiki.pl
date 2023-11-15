@@ -1416,7 +1416,7 @@ sub get_templates_all {
             $brackets_begin = ( $temp_text_2 =~ s/\{\{/\{\{/g );
             $brackets_end   = ( $temp_text_2 =~ s/\}\}/\}\}/g );
 
-            last if ( $brackets_begin == $brackets_end || abs($brackets_begin - $brackets_end) > 10);
+            last if ( $brackets_begin == $brackets_end || abs($brackets_begin - $brackets_end) > 25);
         }
 
         if ( $brackets_begin == $brackets_end ) {
