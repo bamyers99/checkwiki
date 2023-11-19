@@ -3387,11 +3387,12 @@ sub error_048_title_in_text {
     $test_text =~ tr/_/ /;
 
     # [[foo --> [[Foo
+    my $test_text2 = $test_text; # preserve case
     $test_text =~ s/\[\[\s*(\p{Lowercase_Letter})/\[\[\u$1/g;
 
     # \Q \E makes any meta charachter in title safe (|.*+)
     if ( $test_text =~ /\[\[\s*\Q$title\E\s*(\]\]|\|)/ ) {
-        my $test_line = substr( $test_text, $-[0], 40 );
+        my $test_line = substr( $test_text2, $-[0], 40 );
         error_register( $error_code, $test_line );
     }
 
