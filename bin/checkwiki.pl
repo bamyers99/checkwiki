@@ -758,6 +758,7 @@ sub article_scan {
     utf8::decode($ArticleName);
     $text = api_get_text($ArticleName);
     if ( defined($text) ) {
+    	$title = $ArticleName;
         check_article();
     }
 
