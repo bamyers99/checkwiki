@@ -195,11 +195,10 @@ m!/public/dumps/public/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/\Q$project\E-\1-pag
 sub queueUp {
     my ( $date, $file, $projectid ) = @_;
     
-    # dual thread dump scans to allow other jobs to have resources
-    my $jobname = $projectid % 2 ? 'cw-dumpscan1' : 'cw-dumpscan2';
+    my $jobname = 'cw-dumpscan';
      
     my $yaml = CheckwikiK8Api::build_yaml($jobname, "/data/project/checkwiki/bin/dumpwrapper.sh \"$project\" \"$file\"",
-    	'2Gi', '250m');
+    	'2Gi', '1250m');
     	
     my $response = CheckwikiK8Api::send_yaml($yaml);
     
