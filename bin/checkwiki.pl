@@ -2652,7 +2652,7 @@ sub error_017_category_double {
 sub error_018_category_1st_letter_small {
     my $error_code = 18;
     
-        foreach my $i ( 0 .. $Category_counter ) {
+       OUTER: foreach my $i ( 0 .. $Category_counter ) {
             my $test_letter = substr( $Category[$i][2], 0, 1 );
             my $test_cat    = substr( $Category[$i][4], 0, 3 );
 
@@ -2661,7 +2661,7 @@ sub error_018_category_1st_letter_small {
 		    	if ( $Template_list[$error_code][0] ne '-9999' )
 		    	{
 		    		foreach my $skip_category ( @{$Template_list[$error_code]} ) {
-		    			next if ( $Category[$i][2] =~ /$skip_category/i );
+		    			next OUTER if ( $Category[$i][2] =~ /$skip_category/i );
 		    		}
 		    	}
 		    	
