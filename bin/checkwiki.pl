@@ -3897,7 +3897,7 @@ sub error_066_image_description_with_full_small {
 
 sub error_067_ref_after_punctuation {
     my $error_code = 67;
-    my $project_regex;
+    my $project_regex = '';
 
     my $test_text = lc($text);
     if ( $Template_list[$error_code][0] ne '-9999' ) {
