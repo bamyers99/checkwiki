@@ -5175,6 +5175,17 @@ sub insert_into_db {
     my $sth;
     
     if ($dumpbig == 1) {
+    	# see if already in cw_error
+	    $sth = $dbh->prepare('SELECT Title FROM cw_error WHERE Project = ? AND Title = ? AND Error = ?;');
+	    $sth->execute($project);
+	
+	    $sth->bind_col( 1, \$project );
+	    $sth->bind_col( 2, \$title );
+	    $sth->bind_col( 3, \$code );
+	    while ( $sth->fetchrow_arrayref ) {
+    		return ();
+	    }
+	    
     	$sth = $dbh->prepare('INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);');
     	$sth->execute( $project, $title );
     	return ();
