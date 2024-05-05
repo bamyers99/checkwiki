@@ -5173,15 +5173,14 @@ sub error_register {
 sub insert_into_db {
     my ( $code, $notice ) = @_;
     my $sth;
+    my $temp;
     
     if ($dumpbig == 1) {
     	# see if already in cw_error
 	    $sth = $dbh->prepare('SELECT Title FROM cw_error WHERE Project = ? AND Title = ? AND Error = ?;');
-	    $sth->execute($project);
+	    $sth->execute($project, $title, $code);
 	
-	    $sth->bind_col( 1, \$project );
-	    $sth->bind_col( 2, \$title );
-	    $sth->bind_col( 3, \$code );
+	    $sth->bind_col( 1, \$temp );
 	    while ( $sth->fetchrow_arrayref ) {
     		return ();
 	    }
