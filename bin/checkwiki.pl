@@ -2330,6 +2330,7 @@ sub error_006_defaultsort_special_letter {
     if ( $isDefaultsort > -1 ) {
         my $pos2 = index( substr( $text, $isDefaultsort ), '}}' );
         my $test_text = substr( $text, $isDefaultsort, $pos2 );
+        return() if (index($test_text, '{{') > -1); # bail if template found
 
         my $test_text2 = $test_text;
 
