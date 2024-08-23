@@ -175,7 +175,7 @@ sub connect_database {
     my ( $dbh, $dsn, $user, $password );
 
     $dsn =
-'DBI:mysql:s51080__checkwiki_p:tools-db;mysql_read_default_file=../../replica.my.cnf';
+'DBI:mysql:s51080__checkwiki_p:tools.db.svc.wikimedia.cloud;mysql_read_default_file=../../replica.my.cnf';
     $dbh = DBI->connect(
         $dsn, $user,
         $password,
