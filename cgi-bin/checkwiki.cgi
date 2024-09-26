@@ -1712,8 +1712,8 @@ sub get_article_of_error {
           . $row_style
           . '><a href="https://'
           . $homepage
-          . '/wiki/'
-          . $title_sql_under . '">'
+          . '/w/index.php?title='
+          . $title_sql_under . '&amp;redirect=no">'
           . $title_sql
           . '</a></td>';
         $result .=
