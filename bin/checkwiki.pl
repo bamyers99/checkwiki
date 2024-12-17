@@ -4869,18 +4869,28 @@ sub error_103_pipe_in_wikilink {
 sub error_104_quote_marks_in_refs {
     my $error_code = 104;
 
-    while ( $lc_text =~ /(<ref\s+name=\s*(.*?)\s*\/?>)/g ) {
-        my $location = pos($lc_text) - length($1);
+    while ( $lc_text =~ /<ref\s+name=\s*(.*?)\s*\/?>/g ) {
+        my $location = $-[0];
 
-        my $name = $2;
+        my $name = $1;
 
         if ( $name !~ /['"].*['"]/ ) {
-            if ( $name =~ /[#'"\/=>?\\\s]/ and $name !~ / group=/ ) {
+            if ( length($name) == 0 or ($name =~ /[#'"\/=>?\\\s]/ and $name !~ / group\s*=/ )) {
                 error_register( $error_code, substr( $text, $location, 40 ) );
                 last;
             }
         }
+        
+        elsif ( length($name) == 2 ) { # just quotes
+            error_register( $error_code, substr( $text, $location, 40 ) );
+            last;
+        }
     }
+    
+    if ( $lc_text =~ /<ref\s+name\s*\/?>/g ) {
+        error_register( $error_code, substr( $text, $-[0], 40 ) );
+    }
+    
 
     return ();
 
