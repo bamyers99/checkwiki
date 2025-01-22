@@ -1,55 +1,55 @@
 - name: cw-dump-dispatch
   command: /data/project/checkwiki/bin/dump-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "05,35 * * * *"
   emails: none
   cpu: 125m
 
 - name: cw-delay-dispatch
   command: /data/project/checkwiki/bin/delay-dispatch.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "07,22,37,52 * * * *"
   emails: none
   cpu: 125m
 
 - name: cw-live-scan
   command: /data/project/checkwiki/bin/live-scan.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   emails: none
   continuous: true
   cpu: 250m
 
 - name: cw-delete-done
   command: /data/project/checkwiki/bin/delete-done-articles.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "03 0 * * *"
   emails: none
   cpu: 125m
 
 - name: cw-translation
   command: /data/project/checkwiki/bin/translation.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "02 0 * * *"
   emails: none
   cpu: 125m
 
 - name: cw-update-db
   command: /data/project/checkwiki/bin/update_db.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "59,14,29,44 * * * *"
   emails: none
   cpu: 125m
 
 - name: cw-update-html
   command: /data/project/checkwiki/bin/update_html.pl -c /data/project/checkwiki/checkwiki.cfg
-  image: tf-perl532
+  image: perl5.36
   schedule: "03,33 * * * *"
   emails: none
   cpu: 125m
 
 - name: cw-replace-isbn
   command: /data/project/checkwiki/bin/replace-isbn-ranges.pl
-  image: tf-perl532
+  image: perl5.36
   schedule: "02 0 10 * *"
   emails: none
   cpu: 125m
