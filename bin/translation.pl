@@ -141,7 +141,11 @@ $project = $_;
     get_error_description();
     $TranslationFile = get_translation_page();
 #    if ( $TranslationFile ne q{} ) {
-        load_text_translation();
+        my $success = load_text_translation();
+        if (! $success) {
+        	print ' translation page read failed';
+        	next;
+        }
         clearWhitelistTable();
         add_whitelist_to_db();
         clearTemplateTable();
@@ -310,6 +314,7 @@ sub load_text_translation {
     two_column_display( 'Translation input:', $translation_page );
     insert_into_projects($translation_page);
     $translation_input = raw_text($translation_page);
+    return (0) if ($translation_input eq q{});
     $translation_input = replace_special_letters($translation_input);
 
     my $input_text = q{};
@@ -391,7 +396,7 @@ sub load_text_translation {
 
     }
 
-    return ();
+    return (1);
 }
 
 ###########################################################################
@@ -793,6 +798,8 @@ sub raw_text {
 
     my $ua2 = LWP::UserAgent->new;
     $response2 = $ua2->get($url);
+    
+    return (q{}) if ($response2->code != 200);
 
     my $content2 = $response2->content;
     my $result2  = q{};
