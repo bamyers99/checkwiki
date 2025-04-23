@@ -1243,6 +1243,26 @@ sub get_tables {
             }
         }
     }
+    
+    # check for table-end not at beginning of line
+
+    if ( $Template_list[28][0] ne '-9999' ) {
+
+        my @codes = @{ $Template_list[28] };
+        my $tableendstart = -1;
+
+        foreach my $temp (@codes) {
+            while ( ( $tableendstart = index( $lc_text, $temp, $tableendstart + 1 )) > -1 ) {
+            	my $newlinepos = rindex($lc_text, "\n", $tableendstart);
+            	my $testdata = substr($lc_text, $newlinepos, $tableendstart - $newlinepos);
+            	
+            	if ( $testdata !~ /^\n *$/ ) { # spaces are allowed
+            		my $comment = substr($text, $newlinepos, ($tableendstart - $newlinepos) + length($temp));
+                	error_register( 28, $comment );
+            	}
+            }
+        }
+    }
 
     return ();
 }
