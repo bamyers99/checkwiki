@@ -1244,7 +1244,7 @@ sub get_tables {
         }
     }
     
-    # check for table-end not at beginning of line
+    # check for table-end not at beginning of line, case-sensitive
 
     if ( $Template_list[28][0] ne '-9999' ) {
 
@@ -1252,9 +1252,9 @@ sub get_tables {
         my $tableendstart = -1;
 
         foreach my $temp (@codes) {
-            while ( ( $tableendstart = index( $lc_text, $temp, $tableendstart + 1 )) > -1 ) {
-            	my $newlinepos = rindex($lc_text, "\n", $tableendstart);
-            	my $testdata = substr($lc_text, $newlinepos, $tableendstart - $newlinepos);
+            while ( ( $tableendstart = index( $text, $temp, $tableendstart + 1 )) > -1 ) {
+            	my $newlinepos = rindex($text, "\n", $tableendstart);
+            	my $testdata = substr($text, $newlinepos, $tableendstart - $newlinepos);
             	
             	if ( $testdata !~ /^\n *$/ ) { # spaces are allowed
             		my $comment = substr($text, $newlinepos, ($tableendstart - $newlinepos) + length($temp));
