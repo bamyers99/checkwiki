@@ -3160,6 +3160,9 @@ sub error_039_html_element_paragraph {
         # <P> ARE STILL NEEDED IN <REF>
         $test_text =~ s/<ref(.*?)<\/ref>//sg;
 
+        # <P> ARE NEEDED TO PREVENT LISTGAP
+        $test_text =~ s/^[*#]+.*?\n//mg;
+
         my $pos = index( $test_text, '<p>' );
         if ( $pos > -1 ) {
             error_register( $error_code, substr( $test_text, $pos, 40 ) );
