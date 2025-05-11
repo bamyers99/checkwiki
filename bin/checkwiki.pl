@@ -633,7 +633,7 @@ sub readMetadata {
         elsif ( $value[0] eq 'rtl_text_dir' ) {
             $rtl_text_dir = 1;
         }
-        elsif ( $value[0] eq 'template_case' && $value[1] eq 'first-letter' ) {
+        elsif ( $value[0] eq 'template_case' && $value[1] eq 'case-sensitive' ) {
         	$template_first_letter_case_insensitive = 0;
         }
     }
@@ -3973,13 +3973,13 @@ sub error_067_ref_after_punctuation {
     my $error_code = 67;
     my $project_regex = '';
 
-    my $test_text = lc($text);
+    my $test_text = $text;
+    
     if ( $Template_list[$error_code][0] ne '-9999' ) {
 
         my @codes = @{ $Template_list[$error_code] };
 
         foreach my $temp (@codes) {
-        	$temp = lc($temp);
             $test_text =~ s/\b\Q$temp\E\s*<ref[ >]//sg;
         }
         
