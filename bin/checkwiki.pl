@@ -5171,10 +5171,6 @@ sub error_111_ref_after_ref_list {
     my $error_code = 111;
 
     my $lastref = rindex( $lc_text, '<ref>' );
-    my $lastref2 = rindex( $lc_text, '<ref name' );
-    
-    if ( $lastref2 > $lastref )
-    	{ $lastref = $lastref2 };
     
     if ( $lastref > -1 ) {
 
