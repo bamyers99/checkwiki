@@ -110,6 +110,7 @@ my $IMAGE_REGEX;            # Regex used in get_images()
 my $Cat_regex = q{};        # Regex used in get_categories()
 my $REGEX_095;              # Regex used in error_095_user_signature();
 my $rtl_text_dir = 0;       # Set to 1 if rtl_text_dir metadata record is present
+my $template_first_letter_case_insensitive = 1;
 
 my @Magicword_defaultsort;
 
@@ -632,6 +633,9 @@ sub readMetadata {
         elsif ( $value[0] eq 'rtl_text_dir' ) {
             $rtl_text_dir = 1;
         }
+        elsif ( $value[0] eq 'template_case' && $value[1] eq 'first-letter' ) {
+        	$template_first_letter_case_insensitive = 0;
+        }
     }
 
     # API goofs on cswiki
@@ -675,27 +679,43 @@ sub readTemplates {
                     $Template_regex[$i] =
                       $Template_regex[$i] . '\{\{' . lc($template_sql) . q{|};
                 }
-                push( @{ $Template_list[$i] }, lc($template_sql) );
+                push( @{ $Template_list[$i] }, $template_sql );
             }
         }
     }
 
     foreach my $item ( @{ $Template_list[3] } ) {
-        $item = lc($item);
-        push @REGEX_003, qr/\{\{[ ]?$item/;
+    	my ( $firstchar, $restchar ) = template_first_char_regex( $item );
+        push @REGEX_003, qr/\{\{[ ]?$firstchar$restchar/;
     }
 
     foreach my $item ( @{ $Template_list[61] } ) {
-        $item = lc($item);
-        push @REGEX_061, qr/\{\{[ ]?$item\s*\|[^}{]*\}\}[ ]{0,2}[.,?:;!]\s/; # Handling nested templates is too complicated.
+    	my ( $firstchar, $restchar ) = template_first_char_regex( $item );
+        push @REGEX_061, qr/\{\{[ ]?$firstchar$restchar\s*\|[^}{]*\}\}[ ]{0,2}[.,?:;!]\s/; # Handling nested templates is too complicated.
     }
 
     foreach my $item ( @{ $Template_list[78] } ) {
-        $item = lc($item);
-        push @REGEX_078, qr/\{\{$item/;
+    	my ( $firstchar, $restchar ) = template_first_char_regex( $item );
+        push @REGEX_078, qr/\{\{[ ]?$firstchar$restchar/;
     }
 
     return ();
+}
+
+##
+## Return a first character template regex for case-insensitive template first character
+##
+sub template_first_char_regex ()
+{
+	my ( $template_name ) = @_;
+   	my $firstchar = substr($template_name, 0, 1);
+   	my $restchar = substr($template_name, 1);
+    	
+    if ($template_first_letter_case_insensitive) {
+    	$firstchar = '[' . lc($firstchar) . uc($firstchar) . ']';
+    }
+    
+	return ($firstchar, $restchar);
 }
 
 ###########################################################################
@@ -1252,6 +1272,25 @@ sub get_tables {
         my $tableendstart = -1;
 
         foreach my $temp (@codes) {
+            if ( $template_first_letter_case_insensitive ) {
+            	my $firstchar = substr( $temp, 2, 1 );
+   	            my $restchar = substr( $temp, 3 );
+   	                    
+   	            $temp = '{{' . lc($firstchar) . $restchar;
+   	            
+                while ( ( $tableendstart = index( $text, $temp, $tableendstart + 1 )) > -1 ) {
+            	    my $newlinepos = rindex($text, "\n", $tableendstart);
+            	    my $testdata = substr($text, $newlinepos, $tableendstart - $newlinepos);
+            	
+            	    if ( $testdata !~ /^\n *$/ ) { # spaces are allowed
+            		    my $comment = substr($text, $newlinepos, ($tableendstart - $newlinepos) + length($temp));
+                	    error_register( 28, $comment );
+            	    }
+                }
+   	            
+   	            $temp = '{{' . uc($firstchar) . $restchar; # fall thru
+            }
+
             while ( ( $tableendstart = index( $text, $temp, $tableendstart + 1 )) > -1 ) {
             	my $newlinepos = rindex($text, "\n", $tableendstart);
             	my $testdata = substr($text, $newlinepos, $tableendstart - $newlinepos);
@@ -1651,18 +1690,18 @@ sub get_template {
                     my $pos_table     = index( $part, '{|' );
                     my $pos_bracket   = index( $part, q{[} );
 
-                    my $equal_ok = 'true';
-                    $equal_ok = 'false'
+                    my $equal_ok = 1;
+                    $equal_ok = 0
                       if ( $pos_lower > -1 and $pos_lower < $pos_equal );
-                    $equal_ok = 'false'
+                    $equal_ok = 0
                       if (  $pos_next_temp > -1
                         and $pos_next_temp < $pos_equal );
-                    $equal_ok = 'false'
+                    $equal_ok = 0
                       if ( $pos_table > -1 and $pos_table < $pos_equal );
-                    $equal_ok = 'false'
+                    $equal_ok = 0
                       if ( $pos_bracket > -1 and $pos_bracket < $pos_equal );
 
-                    if ( $equal_ok eq 'true' ) {
+                    if ( $equal_ok == 1 ) {
 
                         # Template part with "="   {{test|attribut=value}}
                         $attribut = substr( $part, 0, index( $part, q{=} ) );
@@ -2259,37 +2298,37 @@ sub error_003_have_ref {
         or index( $lc_text, '<ref name' ) > -1 )
     {
 
-        my $test      = 'false';
+        my $test      = 0;
         my $test_text = $lc_text;
 
-        $test = 'true'
+        $test = 1
           if (  $test_text =~ /<[ ]?+references\s*>/
             and $test_text =~ /<[ ]?+\/references\s*>/ );
-        $test = 'true' if ( $test_text =~ /<[ ]?+references[ ]?+\/>/ );
-        $test = 'true' if ( $test_text =~ /<[ ]?+references\s+group/ );
-        $test = 'true' if ( $test_text =~ /<[ ]?+references\s+responsive/ );
-        $test = 'true' if ( $test_text =~ /\{\{[ ]?+refbegin/ );
-        $test = 'true' if ( $test_text =~ /\{\{[ ]?+refend/ );
-        $test = 'true' if ( $test_text =~ /\{\{[ ]?+reflist/ );
+        $test = 1 if ( $test_text =~ /<[ ]?+references[ ]?+\/>/ );
+        $test = 1 if ( $test_text =~ /<[ ]?+references\s+group/ );
+        $test = 1 if ( $test_text =~ /<[ ]?+references\s+responsive/ );
+        $test = 1 if ( $test_text =~ /\{\{[ ]?+refbegin/ );
+        $test = 1 if ( $test_text =~ /\{\{[ ]?+refend/ );
+        $test = 1 if ( $test_text =~ /\{\{[ ]?+reflist/ );
 
         # hrwiki doesn't have a translation file
         if ( $project eq 'hrwiki' ) {
             if ( $test_text =~ /\{\{[ ]?+izvori/ ) {
-                $test = 'true';
+                $test = 1;
             }
         }
 
-        if ( $test eq 'false' and $Template_list[$error_code][0] ne '-9999' ) {
+        if ( $test == 0 and $Template_list[$error_code][0] ne '-9999' ) {
 
             foreach my $regex (@REGEX_003) {
-                if ( $test_text =~ /$regex/ ) {
-                    $test = 'true';
+                if ( $text =~ /$regex/ ) { # non lc text
+                    $test = 1;
                     last;
                 }
             }
         }
 
-        if ( $test eq 'false' ) {
+        if ( $test == 0 ) {
             error_register( $error_code, q{} );
         }
     }
@@ -2890,21 +2929,35 @@ sub error_028_table_no_correct_end {
     if ( $ErrorPriority[$error_code] > 0 ) {
         if ( $comment ne q{} ) {
 
-            my $test = 'false';
+            my $test = 0;
 
             if ( $Template_list[$error_code][0] ne '-9999' ) {
 
                 my @codes = @{ $Template_list[$error_code] };
 
                 foreach my $temp (@codes) {
-                    if ( index( $lc_text, $temp ) > -1 ) {
-                        $test = 'true';
+                    if ( $template_first_letter_case_insensitive ) {
+            	        my $firstchar = substr( $temp, 2, 1 );
+   	                    my $restchar = substr( $temp, 3 );
+   	                    
+   	                    $temp = '{{' . lc($firstchar) . $restchar;
+   	                    
+                        if ( index( $text, $temp ) > -1 ) {
+                            $test = 1;
+                            last;
+                        }
+                        
+   	                    $temp = '{{' . uc($firstchar) . $restchar; # fall thru
+                    }
+   	               
+                    if ( index( $text, $temp ) > -1 ) {
+                        $test = 1;
                         last;
                     }
                 }
             }
 
-            if ( $test eq 'false' ) {
+            if ( $test == 0 ) {
                 error_register( $error_code, $comment );
             }
         }
@@ -3560,12 +3613,12 @@ sub error_053_interwiki_before_category {
             }
         }
 
-        my $found = 'false';
+        my $found = 0;
         foreach my $i ( 0 .. $Category_counter ) {
-            $found = 'true' if ( $pos_interwiki < $Category[$i][0] );
+            $found = 1 if ( $pos_interwiki < $Category[$i][0] );
         }
 
-        if ( $found eq 'true' ) {
+        if ( $found == 1 ) {
             error_register( $error_code, $found_text );
         }
 
@@ -3746,7 +3799,7 @@ sub error_061_reference_with_punctuation {
     elsif ( $Template_list[$error_code][0] ne '-9999' ) {
 
         foreach my $regex (@REGEX_061) {
-            if ( $lc_text =~ /$regex/ ) {
+            if ( $text =~ /$regex/ ) { # case-sensitive
                 error_register( $error_code, substr( $text, $-[0], 40 ) );
                 last;
             }
@@ -3926,6 +3979,7 @@ sub error_067_ref_after_punctuation {
         my @codes = @{ $Template_list[$error_code] };
 
         foreach my $temp (@codes) {
+        	$temp = lc($temp);
             $test_text =~ s/\b\Q$temp\E\s*<ref[ >]//sg;
         }
         
@@ -4051,6 +4105,7 @@ sub error_070_isbn_wrong_length {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
+    			$skip_template = lc($skip_template);
     			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
@@ -4097,6 +4152,7 @@ sub error_072_isbn_10_wrong_checksum {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
+    			$skip_template = lc($skip_template);
     			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
@@ -4226,7 +4282,7 @@ sub error_078_reference_double {
 
     if ( $Template_list[$error_code][0] ne '-9999' ) {
         foreach my $regex (@REGEX_078) {
-            $number_of_refs += () = $lc_text =~ /$regex/g;
+            $number_of_refs += () = $text =~ /$regex/g; # case-sensitive
         }
 
     }
@@ -5115,6 +5171,11 @@ sub error_111_ref_after_ref_list {
     my $error_code = 111;
 
     my $lastref = rindex( $lc_text, '<ref>' );
+    my $lastref2 = rindex( $lc_text, '<ref name' );
+    
+    if ( $lastref2 > $lastref )
+    	{ $lastref = $lastref2 };
+    
     if ( $lastref > -1 ) {
 
         my $reftemplate = rindex( $lc_text, '<references' );
@@ -5123,8 +5184,21 @@ sub error_111_ref_after_ref_list {
             my @temp        = @{ $Template_list[3] };
 
             foreach my $template (@temp) {
+               if ( $template_first_letter_case_insensitive ) {
+            	   my $firstchar = substr( $template, 0, 1 );
+   	               my $restchar = substr( $template, 1 );
+   	            
+                   my $string = '{{' . lc($firstchar) . $restchar;
+                   my $temp = rindex( $text, $string );
+                   if ( $temp > $reftemplate ) {
+                       $reftemplate = $temp;
+                   }
+                   
+                   $template = uc($firstchar) . $restchar; # fall thru
+               }
+            	
                 my $string = '{{' . $template;
-                my $temp = rindex( $lc_text, $string );
+                my $temp = rindex( $text, $string );
                 if ( $temp > $reftemplate ) {
                     $reftemplate = $temp;
                 }

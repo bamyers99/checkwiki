@@ -144,6 +144,7 @@ foreach (@Projects) {
         if ( $id == 10 ) {
             @Namespace_templates = ($name);
             push( @Namespace_templates, $canonical ) if ( $name ne $canonical );
+            add_scalar_to_db( 'template_case', $res->{query}->{namespaces}->{$id}->{'case'} ); # first-letter | case-sensitive
         }
         if ( $id == 14 ) {
             @Namespace_cat = ($name);
