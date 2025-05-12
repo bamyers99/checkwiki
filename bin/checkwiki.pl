@@ -4481,13 +4481,18 @@ sub error_085_tag_without_content {
     foreach (@REGEX_085) {
         if ( $lc_text =~ /$_/ ) {
             my $tag = substr( $text, $-[0], 60 );
-            if ( $tag !~ /<div/ ) {
-                error_register( $error_code, substr( $tag, 0, 40 ) );
+            my $report = 1;
+            
+            if ( $tag =~ /<div/ && $tag =~ /background/ ) { # <div> tags with background are mostly ok
+                $report = 0;
             }
 
-            # <div> tags with background are mostly ok
-            elsif ( $tag !~ /background/ ) {
-                error_register( $error_code, substr( $tag, 0, 40 ) );
+            elsif ( ( $tag =~ /<div/ || $tag =~ /<span/ ) && $tag =~ /id\s*=/ ) { # div and span with id attribute "anywhere" are anchors
+                $report = 0;
+            }
+            
+            if ($report) {
+            	error_register( $error_code, substr( $tag, 0, 40 ) );
             }
         }
     }
