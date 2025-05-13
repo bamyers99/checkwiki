@@ -926,7 +926,12 @@ sub check_article {
     # REMOVE FROM $text ANY CONTENT BETWEEN <mapframe> TAGS.
     get_mapframe();
 
-    $lc_text = lc($text);
+	# Only lowercase ASCII characters, not unicode. This keeps the string lengths the same between $text and $lc_text.
+	{
+		use bytes;
+		$lc_text = lc($text);
+		utf8::decode($lc_text);
+	}
 
     #------------------------------------------------------
     # Following interacts with other get_* or error #'s
@@ -1995,7 +2000,12 @@ sub get_broken_tag {
     my $text_snippet = q{};
     my $found        = -1;    # Open tag could be at position 0
 
-    my $test_text = lc($text);
+    my $test_text;
+	{
+		use bytes;
+		$test_text = lc($text);
+		utf8::decode($test_text);
+	}
 
     if ( $tag_open eq '<ref' ) {
         $test_text =~ s/$REGEX_REFERENCESTUB//sg;
@@ -2043,7 +2053,12 @@ sub get_broken_tag_closing {
     my $found        = -2;    # Open tag could be at position 0
     my $ref_open     = 1;
 
-    my $test_text = lc($text);
+    my $test_text;
+	{
+		use bytes;
+		$test_text = lc($text);
+		utf8::decode($test_text);
+	}
 
     if ( $tag_open eq '<ref' ) {
         $test_text =~ s/$REGEX_REFERENCESTUB//sg;
@@ -4105,7 +4120,11 @@ sub error_070_isbn_wrong_length {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
-    			$skip_template = lc($skip_template);
+				{
+					use bytes;
+					$skip_template = lc($skip_template);
+					utf8::decode($skip_template);
+				}
     			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
@@ -4152,7 +4171,11 @@ sub error_072_isbn_10_wrong_checksum {
     	if ( $Template_list[$error_code][0] ne '-9999' )
     	{
     		foreach my $skip_template ( @{$Template_list[$error_code]} ) {
-    			$skip_template = lc($skip_template);
+				{
+					use bytes;
+					$skip_template = lc($skip_template);
+					utf8::decode($skip_template);
+				}
     			return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
     		}
     	}
