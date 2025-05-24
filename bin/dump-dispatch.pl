@@ -95,8 +95,10 @@ foreach (@Projects) {
         my $lastDump = $Last_Dump[$count];
         my $projectid = $ProjectIds[$count];
         my ( $latestDumpDate, $latestDumpFilename ) = FindLatestDump();
+        my $lastDumpNum = $lastDump =~ s/-//gr;
+        my $latestDumpDateNum = $latestDumpDate =~ s/-//gr;
           
-        if ( !defined($lastDump) || $lastDump ne $latestDumpDate ) {
+        if ( !defined($lastDump) || $lastDumpNum < $latestDumpDateNum ) {
             queueUp( $latestDumpDate, $latestDumpFilename, $projectid );
         }
     }
