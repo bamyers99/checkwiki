@@ -100,6 +100,7 @@ foreach (@Projects) {
           
         if ( !defined($lastDump) || $lastDumpNum < $latestDumpDateNum ) {
             queueUp( $latestDumpDate, $latestDumpFilename, $projectid );
+            last;
         }
     }
     $count++;
