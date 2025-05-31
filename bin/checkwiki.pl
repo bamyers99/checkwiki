@@ -4854,7 +4854,7 @@ sub error_097_toc_has_material_after {
 
 	if ( $lc_text =~ /$Template_regex[97]__toc__/i ) {
 		my $toc_pos      = $-[0];
-		return () if (undefined($Headlines[0]));
+		return () if (! defined($Headlines[0]));
 		my $headline_pos = index( $text, $Headlines[0] );
 		if ( ( $headline_pos - $toc_pos ) > 40 and $-[0] > -1 ) {
 			error_register( $error_code, substr( $text, $-[0], 40 ) );
