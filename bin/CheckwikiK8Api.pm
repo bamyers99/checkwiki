@@ -50,7 +50,7 @@ sub build_yaml {
             "template" : {
                 "metadata" : {"labels" : {
 			        "toolforge" : "tool",
-			        "app.kubernetes.io/version" : "1",
+			        "app.kubernetes.io/version" : "2",
 			        "app.kubernetes.io/managed-by" : "toolforge-jobs-framework",
 			        "app.kubernetes.io/created-by" : "checkwiki",
 			        "app.kubernetes.io/component" : "jobs",

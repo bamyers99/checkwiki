@@ -664,8 +664,9 @@ sub output_text_translation_wiki {
 
         my $current_error_number = 'error_';
         $current_error_number = $current_error_number . '0' if ( $i < 10 );
-        $current_error_number = $current_error_number . '0' . $i
-          if ( $i < 100 );
+        $current_error_number = $current_error_number . '0' if ( $i < 100 );
+        $current_error_number = $current_error_number . $i;
+        
         print TRANSLATION ' '
           . $current_error_number
           . '_prio_script='

@@ -715,7 +715,7 @@ sub readTemplates {
 ##
 ## Return a first character template regex for case-insensitive template first character
 ##
-sub template_first_char_regex () {
+sub template_first_char_regex {
 	my ($template_name) = @_;
 	my $firstchar       = substr( $template_name, 0, 1 );
 	my $restchar        = substr( $template_name, 1 );
