@@ -246,7 +246,7 @@ if (
 
 if (    $param_project ne q{}
     and $param_view =~ /^(detail|only)$/
-    and $param_title =~ /^(.)+$/
+    and $param_title ne q{}
     and $param_id =~ /^[0-9]+$/ )
 {
 
@@ -761,40 +761,6 @@ sub begin_html {
     return ();
 }
 
-##########################################################################
-## GET NUMBER OF ALL ERRORS OVER ALL PROJECTS
-##########################################################################
-
-sub get_number_all_errors_over_all {
-    my $dbh    = connect_database();
-    my $result = 0;
-
-    my $sth = $dbh->prepare('SELECT count(*) FROM cw_error WHERE ok=0;')
-      or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute
-      or die "Cannot execute: $sth->errstr\n";
-
-    $result = $sth->fetchrow();
-
-    return ($result);
-}
-
-###########################################################################
-
-sub get_number_of_ok_over_all {
-    my $dbh    = connect_database();
-    my $result = 0;
-
-    my $sth = $dbh->prepare('SELECT count(*) FROM cw_error WHERE ok=1;')
-      or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute
-      or die "Cannot execute: $sth->errstr\n";
-
-    $result = $sth->fetchrow();
-
-    return ($result);
-}
-
 ###########################################################################
 
 sub get_projects {
@@ -912,57 +878,6 @@ sub get_projects {
     }
 
     $result .= '</table>' . "\n\n";
-    return ($result);
-}
-
-###########################################################################
-
-sub get_number_all_article {
-    my $result = 0;
-    my $dbh    = connect_database();
-
-    my $sth = $dbh->prepare(
-'SELECT count(a.error_id) FROM (select error_id FROM cw_error WHERE ok=0 AND project= ? GROUP BY error_id) a;' )
-        or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute($param_project)
-        or die "Cannot execute: $sth->errstr \n";
-
-    $result = $sth->fetchrow();
-
-    return ($result);
-}
-
-###########################################################################
-
-sub get_number_of_ok {
-    my $result = 0;
-    my $dbh    = connect_database();
-
-    my $sth = $dbh->prepare(
-        'SELECT IFNULL(sum(done),0) FROM cw_overview_errors WHERE project= ?;')
-      or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute($param_project)
-      or die "Cannot execute: $sth->errstr\n";
-
-    $result = $sth->fetchrow();
-
-    return ($result);
-}
-
-###########################################################################
-
-sub get_number_all_errors {
-    my $result = 0;
-    my $dbh    = connect_database();
-
-    my $sth = $dbh->prepare(
-      'SELECT IFNULL(sum(errors),0) FROM cw_overview_errors WHERE project= ?;')
-      or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute($param_project)
-      or die "Cannot execute: $sth->errstr\n";
-
-    $result = $sth->fetchrow();
-
     return ($result);
 }
 
@@ -1469,6 +1384,10 @@ sub get_prio_of_error {
       or die "Cannot execute: $sth->errstr\n";
 
     $result = $sth->fetchrow();
+
+    if ( !defined($result) ) {
+        $result = '0';
+    }
 
     return ($result);
 }
