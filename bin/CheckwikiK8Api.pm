@@ -64,7 +64,7 @@ sub build_yaml {
                     "containers" : [
                         {
                             "name" : "$jobname",
-                            "image" : "docker-registry.tools.wmflabs.org/toolforge-perl536-sssd-base:latest",
+                            "image" : "docker-registry.tools.wmflabs.org/toolforge-perl540-sssd-base:latest",
                             "workingDir" : "/data/project/checkwiki",
                             "command" : ["/bin/sh", "-c", "--", "$command 1>>$jobname.out 2>>$jobname.err"],
                             "env" : [{"name" : "HOME", "value" : "/data/project/checkwiki"}],
