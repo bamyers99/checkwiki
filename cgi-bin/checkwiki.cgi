@@ -662,7 +662,13 @@ if (    $param_project ne q{}
           . $homepage
           . '/w/index.php?title='
           . $title_under
-          . '&amp;action=edit">edit</a></p>';
+          . '&amp;action=edit">edit</a>'
+          . ' - <a href="https://'
+          . $homepage
+          . '/w/index.php?title='
+          . $title_under
+          . '&amp;action=history">history</a>'
+          . '</p>';
     }
 
     print get_all_error_of_article($param_title);
@@ -1642,7 +1648,13 @@ sub get_article_of_error {
           . $homepage
           . '/w/index.php?title='
           . $title_sql_under
-          . '&amp;action=edit">edit</a></td>';
+          . '&amp;action=edit">edit</a>'
+          . '&nbsp;&#8209;&nbsp;<a href="https://'
+          . $homepage
+          . '/w/index.php?title='
+          . $title_sql_under
+          . '&amp;action=history">history</a>'
+          . '</td>';
 
         if ( $param_id == 25 or $param_id == 78 ) {
             $notice_sql =~ s/&lt;br&gt;/\<br\>/;
