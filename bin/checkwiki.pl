@@ -4034,13 +4034,16 @@ sub error_067_ref_after_punctuation {
 			$test_text =~ s/\b\Q$temp\E\s*<ref[ >]//sg;
 		}
 
-		if ( $project ne 'frwiki' ) {
+		if ($project eq 'jawiki') {
+			$project_regex = '?!。、，．：；？！';			
+		}
+		elsif ( $project ne 'frwiki' ) {
 			$project_regex = '?!';
 		}
 
 		# capture 10 leading chars so can check for HTML entity
 		if ( $test_text =~
-			/.{9}[^\n][ ]{0,2}([\.,:;$project_regex])[ ]{0,2}<ref[ >]/ )
+			/.{9}[^\n][ ]{0,2}([\.,:;\Q$project_regex\E])[ ]{0,2}<ref[ >]/ )
 		{
 			my $captured = substr( $test_text, $-[0], 50 );
 			if ( $captured !~ /(&.+;)/i ) {
