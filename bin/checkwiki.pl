@@ -111,6 +111,7 @@ my @Template_regex;         # Template regex fron translation file
 my $IMAGE_REGEX;            # Regex used in get_images()
 my $Cat_regex = q{};        # Regex used in get_categories()
 my $REGEX_095;              # Regex used in error_095_user_signature();
+my $REGEX_028_has_newline = qr/\@\@HasNewline\@\@/i;
 my $rtl_text_dir = 0;    # Set to 1 if rtl_text_dir metadata record is present
 my $template_first_letter_case_insensitive = 1;
 
@@ -1291,6 +1292,10 @@ sub get_tables {
 		my $tableendstart = -1;
 
 		foreach my $temp (@codes) {
+			if ($temp =~ $REGEX_028_has_newline) {
+				next;
+			}
+			
 			if ($template_first_letter_case_insensitive) {
 				my $firstchar = substr( $temp, 2, 1 );
 				my $restchar  = substr( $temp, 3 );
@@ -2988,6 +2993,8 @@ sub error_028_table_no_correct_end {
 				my @codes = @{ $Template_list[$error_code] };
 
 				foreach my $temp (@codes) {
+					$temp =~ s/\s*$REGEX_028_has_newline//i;
+					
 					if ($template_first_letter_case_insensitive) {
 						my $firstchar = substr( $temp, 2, 1 );
 						my $restchar  = substr( $temp, 3 );
