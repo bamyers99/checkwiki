@@ -3001,8 +3001,8 @@ sub error_028_table_no_correct_end {
 
 						$temp = quotemeta('{{' . lc($firstchar) . $restchar);
 						
-						# Allow underscores
-						$temp =~ s/ /\( \|_\)/g;
+						# Allow underscores, quotemeta quotes a space
+						$temp =~ s/\\ /\( \|_\)/g;
 
 						if ( $text =~ $temp ) {
 							$test = 1;
@@ -3014,7 +3014,7 @@ sub error_028_table_no_correct_end {
 					
 					$temp = quotemeta($temp);
 
-					$temp =~ s/ /\( \|_\)/g;
+					$temp =~ s/\\ /\( \|_\)/g;
 						
 					if ( $text =~ $temp ) {
 						$test = 1;
