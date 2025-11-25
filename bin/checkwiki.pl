@@ -2999,17 +2999,24 @@ sub error_028_table_no_correct_end {
 						my $firstchar = substr( $temp, 2, 1 );
 						my $restchar  = substr( $temp, 3 );
 
-						$temp = '{{' . lc($firstchar) . $restchar;
+						$temp = quotemeta('{{' . lc($firstchar) . $restchar);
+						
+						# Allow underscores
+						$temp =~ s/ /\( \|_\)/g;
 
-						if ( index( $text, $temp ) > -1 ) {
+						if ( $text =~ $temp ) {
 							$test = 1;
 							last;
 						}
 
 						$temp = '{{' . uc($firstchar) . $restchar;   # fall thru
 					}
+					
+					$temp = quotemeta($temp);
 
-					if ( index( $text, $temp ) > -1 ) {
+					$temp =~ s/ /\( \|_\)/g;
+						
+					if ( $text =~ $temp ) {
 						$test = 1;
 						last;
 					}
