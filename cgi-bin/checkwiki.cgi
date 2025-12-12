@@ -836,8 +836,12 @@ sub get_projects {
 
     while ( $sth->fetchrow_arrayref ) {
         my $homepage = get_homepage($project_sql);
-        if (not defined $trans_sql) { $trans_sql = ''; }
-        if (not defined $page_sql) { $page_sql = ''; }
+        if (! defined($trans_sql)) {
+        	$trans_sql = '';
+        }
+        if (! defined($page_sql)) {
+        	$page_sql = '';
+        }
 
         # PRINT OUT "PROJECT NUMBER" and "PROJECT" COLUMNS
         $result .= '<tr>' . "\n\n";
