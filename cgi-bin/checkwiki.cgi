@@ -57,6 +57,7 @@ $param_sort    = q{} if ( !defined $param_sort );
 $param_view =~ s/[^a-z0-9]/_/g;
 $param_project =~ s/[^a-z]/_/g;
 $param_title =~ s/[#<>\[\]\|\{\}_\n\r\t]/_/g;
+my $param_projectno = 0;
 
 if ( $param_id ne q{} ) {
     $param_id = 1 if ( $param_id !~ /^[+-]?\d+$/ );
@@ -132,6 +133,24 @@ else {
     if ( $param_project =~ /arwiki|arcwiki|fawiki|hewiki|yiwiki|urwiki/ ) {
         $lang_dir = "\n\n" . '<table class="table" dir="rtl">';
         $bidi = 1;
+    }
+}
+
+if ($param_project ne q{}) {
+    my $dbh     = connect_database();
+
+    my $sth = $dbh->prepare(
+'SELECT id FROM cw_overview WHERE project= ?;' )
+      or die "Can not prepare statement: $DBI::errstr\n";
+    $sth->execute( $param_project )
+      or die "Cannot execute: $sth->errstr\n";
+
+    $sth->bind_col( 1, \$param_projectno );
+
+    $sth->fetchrow_arrayref;
+
+    if ( !defined($param_projectno) ) {
+        $param_projectno = 0;
     }
 }
 
@@ -251,9 +270,9 @@ if (    $param_project ne q{}
 {
 
     my $dbh = connect_database();
-    my $sth = $dbh->prepare('UPDATE cw_error SET ok=1 WHERE Title=? AND error=? AND project=?')
+    my $sth = $dbh->prepare('UPDATE cw_error SET ok=1 WHERE Title=? AND error=? AND projectno=?')
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $param_title, $param_id, $param_project )
+    $sth->execute( $param_title, $param_id, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 }
 
@@ -608,9 +627,9 @@ if (    $param_project ne q{}
     my $dbh = connect_database();
 
     my $sth =
-      $dbh->prepare('UPDATE cw_error SET ok=1 WHERE error= ? AND project= ?;')
+      $dbh->prepare('UPDATE cw_error SET ok=1 WHERE error= ? AND projectno= ?;')
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $param_id, $param_project )
+    $sth->execute( $param_id, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     print 'Back to ' . $prio . "\n";
@@ -641,9 +660,9 @@ if (    $param_project ne q{}
     my $dbh      = connect_database();
 
     my $sth = $dbh->prepare(
-        'SELECT title FROM cw_error WHERE Title= ? AND project= ? limit 1;')
+        'SELECT title FROM cw_error WHERE Title= ? AND projectno= ? limit 1;')
       or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute( $param_title, $param_project )
+    $sth->execute( $param_title, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     my $title_sql;
@@ -901,9 +920,9 @@ sub get_number_of_error {
     my $dbh     = connect_database();
 
     my $sth = $dbh->prepare(
-        'SELECT count(*) FROM cw_error WHERE ok=0 AND error= ? AND project= ?;')
+        'SELECT count(*) FROM cw_error WHERE ok=0 AND error= ? AND projectno= ?;')
       or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute( $error, $param_project )
+    $sth->execute( $error, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     $result = $sth->fetchrow();
@@ -924,9 +943,9 @@ sub get_number_of_ok_of_error {
     my $dbh     = connect_database();
 
     my $sth = $dbh->prepare(
-        'SELECT count(*) FROM cw_error WHERE ok=1 AND error= ? AND project= ?;')
+        'SELECT count(*) FROM cw_error WHERE ok=1 AND error= ? AND projectno= ?;')
       or die "Problem with statement: $DBI::errstr\n";
-    $sth->execute( $error, $param_project )
+    $sth->execute( $error, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     $result = $sth->fetchrow();
@@ -1584,12 +1603,12 @@ sub get_article_of_error {
     $column_orderby = 'title' if ( $column_orderby eq q{} );
 
     # Can't use placeholders for sort
-    my $sth = $dbh->prepare( 'SELECT title, notice, found, project FROM cw_error WHERE error= ? AND project= ? AND ok=0 ORDER BY '
+    my $sth = $dbh->prepare( 'SELECT title, notice, found, project FROM cw_error WHERE error= ? AND projectno= ? AND ok=0 ORDER BY '
           . $column_orderby . q{ } 
           . $column_sort
           . ' LIMIT ?, ?;' )
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $error, $param_project, $param_offset, $param_limit )
+    $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
       or die "Cannot execute: $sth->errstr\n";
 
     my ( $title_sql, $notice_sql, $found_sql, $project_sql );
@@ -1937,12 +1956,12 @@ sub get_done_article_of_error {
     if ( $param_project ne 'all' ) {
         $sth = $dbh->prepare(
             'SELECT title, notice, found, project FROM cw_error
-             WHERE error= ? AND ok=1 AND project = ? ORDER BY '
+             WHERE error= ? AND ok=1 AND projectno = ? ORDER BY '
               . $column_orderby . q{ } 
               . $column_sort
               . ' LIMIT ?, ? ;' )
           or die "Can not prepare statement: $DBI::errstr\n";
-        $sth->execute( $error, $param_project, $param_offset, $param_limit )
+        $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
           or die "Cannot execute $sth->errstr\n";
 
     }
@@ -2046,9 +2065,9 @@ sub get_article_of_error_for_bots {
     my $dbh     = connect_database();
 
     my $sth = $dbh->prepare(
-'SELECT title FROM cw_error WHERE error= ? AND project= ? AND ok=0 LIMIT ?, ?;')
+'SELECT title FROM cw_error WHERE error= ? AND projectno= ? AND ok=0 LIMIT ?, ?;')
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $error, $param_project, $param_offset, $param_limit )
+    $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
       or die "Cannot execute: $sth->errstr\n";
 
     $result .= '<pre>' . "\n";
@@ -2100,9 +2119,9 @@ sub get_all_error_of_article {
     $result .= '</tr>' . "\n\n";
 
     my $sth = $dbh->prepare(
-'SELECT error, notice, title, ok FROM cw_error  WHERE title= ? AND Project= ? ORDER BY error')
+'SELECT error, notice, title, ok FROM cw_error  WHERE title= ? AND Projectno= ? ORDER BY error')
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $param_title, $param_project )
+    $sth->execute( $param_title, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     my ( $error_sql, $notice_sql, $title_sql, $ok_sql );

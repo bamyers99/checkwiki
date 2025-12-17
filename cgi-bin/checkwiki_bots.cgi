@@ -47,6 +47,7 @@ $param_id      = q{} if ( !defined $param_id );
 $param_title   = q{} if ( !defined $param_title );
 $param_offset  = q{} if ( !defined $param_offset );
 $param_limit   = q{} if ( !defined $param_limit );
+my $param_projectno = 0;
 
 if ( $param_offset !~ /^[0-9]+$/ ) {
     $param_offset = 0;
@@ -72,6 +73,22 @@ if ( $param_limit > 10_000 ) {
 ##########################################################################
 ## MAIN PROGRAM
 ##########################################################################
+
+    my $dbh     = connect_database();
+
+    my $sth = $dbh->prepare(
+'SELECT id FROM cw_overview WHERE project= ?;' )
+      or die "Can not prepare statement: $DBI::errstr\n";
+    $sth->execute( $param_project )
+      or die "Cannot execute: $sth->errstr\n";
+
+    $sth->bind_col( 1, \$param_projectno );
+
+    $sth->fetchrow_arrayref;
+
+    if ( !defined($param_projectno) ) {
+        $param_projectno = 0;
+    }
 
 # List articles
 if (    $param_project ne q{}
@@ -101,9 +118,9 @@ sub list_articles {
     my $dbh = connect_database();
 
     my $sth = $dbh->prepare(
-'SELECT title FROM cw_error WHERE error = ? AND project = ? AND ok=0 LIMIT ?, ?;'
+'SELECT title FROM cw_error WHERE error = ? AND projectno = ? AND ok=0 LIMIT ?, ?;'
     ) or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $param_id, $param_project, $param_offset, $param_limit )
+    $sth->execute( $param_id, $param_projectno, $param_offset, $param_limit )
       or die "Cannot execute: $sth->errstr\n";
 
     print "Content-type: text/plain;charset=UTF-8\n\n";
@@ -129,9 +146,9 @@ sub mark_article_done {
     my $dbh = connect_database();
 
     my $sth = $dbh->prepare(
-        'UPDATE cw_error SET ok=1 WHERE title= ? AND error= ? And project = ?;')
+        'UPDATE cw_error SET ok=1 WHERE title= ? AND error= ? And projectno = ?;')
       or die "Can not prepare statement: $DBI::errstr\n";
-    $sth->execute( $param_title, $param_id, $param_project )
+    $sth->execute( $param_title, $param_id, $param_projectno )
       or die "Cannot execute: $sth->errstr\n";
 
     #Need to sleep for WPCleaner, else it bombs

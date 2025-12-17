@@ -110,7 +110,7 @@ sub close_db {
 sub get_projects {
 
     my $result = q();
-    my $sth = $dbh->prepare('SELECT project FROM cw_overview ORDER BY project;')
+    my $sth = $dbh->prepare('SELECT id FROM cw_overview ORDER BY project;')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute
       or die "Cannot execute: $sth->errstr\n";
@@ -133,7 +133,7 @@ sub delete_done_article_from_db {
     my ($project) = @_;
 
     my $sth =
-      $dbh->prepare('DELETE FROM cw_error WHERE ok = 1 and project = ?;')
+      $dbh->prepare('DELETE FROM cw_error WHERE ok = 1 and projectno = ?;')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute($project)
       or die "Cannot execute: $sth->errstr\n";

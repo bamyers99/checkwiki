@@ -36,6 +36,7 @@ our $LOWEST_PRIORITY_SCRIPT = 'Lowest priority';
 
 our @Projects;
 our $project;
+our $projectno;
 our @ErrorDescription;
 our $Number_of_error_description = 113;
 
@@ -135,6 +136,21 @@ get_projects();
 
 foreach (@Projects) {
 $project = $_; 
+
+    my $sth = $dbh->prepare(
+'SELECT id FROM cw_overview WHERE project= ?;' )
+      or die "Can not prepare statement: $DBI::errstr\n";
+    $sth->execute( $project )
+      or die "Cannot execute: $sth->errstr\n";
+
+    $sth->bind_col( 1, \$projectno );
+
+    $sth->fetchrow_arrayref;
+
+    if ( !defined($projectno) ) {
+        $projectno = 0;
+    }
+
 
     print "\n\n";
     two_column_display( 'Working on:', $project );
@@ -533,14 +549,15 @@ sub output_errors_desc_in_db {
         if ( $x ne '1' ) {
             two_column_display( 'new error:', 'description insert into db' );
             $sql_text =
-"INSERT INTO cw_overview_errors (project, id, prio, name, text, name_trans, text_trans) VALUES ('"
+"INSERT INTO cw_overview_errors (project, id, prio, name, text, name_trans, text_trans, projectno) VALUES ('"
               . $project . "', "
               . $i . ", "
               . $ErrorDescription[$i][4] . ", '"
               . $sql_headline . "' ,'"
               . $sql_desc . "','"
               . $sql_headline_trans . "' ,'"
-              . $sql_desc_trans . "' );";
+              . $sql_desc_trans . "', "
+              . $projectno . " );";
             $sth = $dbh->prepare($sql_text)
               || die "Can not prepare statement: $DBI::errstr\n";
             $sth->execute or die "Cannot execute: " . $sth->errstr . "\n";

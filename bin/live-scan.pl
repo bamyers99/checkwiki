@@ -33,6 +33,26 @@ my %Limit       = ();
 my @ProjectList = qw/ enwiki dewiki eswiki frwiki arwiki cswiki plwiki bnwiki nlwiki nowiki cawiki hewiki ruwiki itwiki ptwiki ukwiki/;
 my @Titles;
 
+my %ProjectNos = (
+    enwiki => 9,
+    dewiki => 8,
+    eswiki => 11,
+    frwiki => 13,
+    arwiki => 2,
+    cswiki => 5,
+    plwiki => 28,
+    bnwiki => 59,
+    nlwiki => 25,
+    nowiki => 26,
+    cawiki => 3,
+    hewiki => 16,
+    ruwiki => 31,
+    itwiki => 20,
+    ptwiki => 29,
+    ukwiki => 35
+);
+
+
 my $DbName      = q{};
 my $DbServer    = q{};
 my $DbUsername  = q{};
@@ -144,11 +164,11 @@ sub insert_db {
     my ($project) = @_;
     my $null = undef;
     my $sth = $dbh->prepare(
-        'INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);')
+        'INSERT IGNORE INTO cw_new (ProjectNo, Title) VALUES (?, ?);')
       or die "Can not prepare statement: $DBI::errstr\n";
 
     foreach my $title (@Titles) {
-        $sth->execute( $project, $title )
+        $sth->execute( $ProjectNos{$project}, $title )
           or die "Cannot execute: $sth->errstr\n";
     }
 

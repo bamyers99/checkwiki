@@ -52,6 +52,7 @@ my $CheckOnlyOne = 0;      # Check only one error or all errors
 my $ServerName  = q{};     # Address where api can be found
 my $Language    = q{};     # Code of the language being used 'de' or 'en'
 my $project     = q{};     # Name of the project 'dewiki'
+my $projectno   = 0;       # Numeric project id
 my $end_of_dump = q{};     # When last article from dump reached
 my $artcount    = 0;       # Number of articles processed
 my $file_size   = 0;       # How many MB of the dump has been processed.
@@ -354,6 +355,20 @@ sub open_db {
 	$dbh->do('SET NAMES utf8mb4')
 	  or die( $dbh->errstr );
 
+    my $sth = $dbh->prepare(
+'SELECT id FROM cw_overview WHERE project= ?;' )
+      or die "Can not prepare statement: $DBI::errstr\n";
+    $sth->execute( $project )
+      or die "Cannot execute: $sth->errstr\n";
+
+    $sth->bind_col( 1, \$projectno );
+
+    $sth->fetchrow_arrayref;
+
+    if ( !defined($projectno) ) {
+        $projectno = 0;
+    }
+
 	return ();
 }
 
@@ -374,8 +389,8 @@ sub close_db {
 
 sub clearDumpscanTable {
 
-	my $sth = $dbh->prepare('DELETE FROM cw_dumpscan WHERE Project = ?;');
-	$sth->execute($project);
+	my $sth = $dbh->prepare('DELETE FROM cw_dumpscan WHERE Projectno = ?;');
+	$sth->execute($projectno);
 
 	return ();
 }
@@ -506,13 +521,13 @@ sub update_table_cw_error_from_dump {
 
 	if ( $Dump_or_Live eq 'dump' && $dumpbig != 1 ) {
 
-		my $sth = $dbh->prepare('DELETE FROM cw_error WHERE Project = ?;');
-		$sth->execute($project);
+		my $sth = $dbh->prepare('DELETE FROM cw_error WHERE Projectno = ?;');
+		$sth->execute($projectno);
 
 		$sth = $dbh->prepare(
-'INSERT INTO cw_error (SELECT * FROM cw_dumpscan WHERE Project = ?);'
+'INSERT INTO cw_error (SELECT * FROM cw_dumpscan WHERE Projectno = ?);'
 		);
-		$sth->execute($project);
+		$sth->execute($projectno);
 
 	}
 
@@ -526,8 +541,8 @@ sub update_table_cw_error_from_dump {
 sub delete_done_article_from_db {
 
 	my $sth =
-	  $dbh->prepare('DELETE FROM cw_error WHERE ok = 1 and project = ?;');
-	$sth->execute($project);
+	  $dbh->prepare('DELETE FROM cw_error WHERE ok = 1 and projectno = ?;');
+	$sth->execute($projectno);
 
 	return ();
 }
@@ -541,8 +556,8 @@ sub delete_old_errors_in_db {
 		&& $title ne q{} )
 	{
 		my $sth = $dbh->prepare(
-			'DELETE FROM cw_error WHERE Title = ? AND Project = ?;');
-		$sth->execute( $title, $project );
+			'DELETE FROM cw_error WHERE Title = ? AND Projectno = ?;');
+		$sth->execute( $title, $projectno );
 	}
 
 	return ();
@@ -841,13 +856,13 @@ sub delay_scan {
 
 # Recheck 2500 articles that are over 1 month old, no DISTINCT because it changes the sort order
 	my $sth = $dbh->prepare(
-'INSERT IGNORE INTO cw_new SELECT Project, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 2500;'
+'INSERT IGNORE INTO cw_new SELECT Projectno, Title FROM cw_error WHERE Found < DATE_SUB(NOW(), INTERVAL 31 DAY) AND Project = ? ORDER BY Found LIMIT 2500;'
 	);
-	$sth->execute($project);
+	$sth->execute($projectno);
 
 	# Get titles gathered from live_scan.pl
-	$sth = $dbh->prepare('SELECT Title FROM cw_new WHERE Project = ?;');
-	$sth->execute($project);
+	$sth = $dbh->prepare('SELECT Title FROM cw_new WHERE Projectno = ?;');
+	$sth->execute($projectno);
 
 	$sth->bind_col( 1, \$title_sql );
 	while ( $sth->fetchrow_arrayref ) {
@@ -856,8 +871,8 @@ sub delay_scan {
 
 	# Remove the articles. live_scan.pl is continuously adding new article.
 	# So, need to remove before doing anything else.
-	$sth = $dbh->prepare('DELETE FROM cw_new WHERE Project = ?;');
-	$sth->execute($project);
+	$sth = $dbh->prepare('DELETE FROM cw_new WHERE Projectno = ?;');
+	$sth->execute($projectno);
 
 	foreach (@title_array) {
 		set_variables_for_article();
@@ -5370,9 +5385,9 @@ sub insert_into_db {
 
 		# see if already in cw_error
 		$sth = $dbh->prepare(
-'SELECT Title FROM cw_error WHERE Project = ? AND Title = ? AND Error = ?;'
+'SELECT Title FROM cw_error WHERE Projectno = ? AND Title = ? AND Error = ?;'
 		);
-		$sth->execute( $project, $title, $code );
+		$sth->execute( $projectno, $title, $code );
 
 		$sth->bind_col( 1, \$temp );
 		while ( $sth->fetchrow_arrayref ) {
@@ -5380,8 +5395,8 @@ sub insert_into_db {
 		}
 
 		$sth = $dbh->prepare(
-			'INSERT IGNORE INTO cw_new (Project, Title) VALUES (?, ?);');
-		$sth->execute( $project, $title );
+			'INSERT IGNORE INTO cw_new (Projectno, Title) VALUES (?, ?);');
+		$sth->execute( $projectno, $title );
 		return ();
 	}
 
@@ -5400,14 +5415,14 @@ sub insert_into_db {
 
 	if ( $Dump_or_Live eq 'live' or $Dump_or_Live eq 'delay' ) {
 		$sth = $dbh->prepare(
-			'INSERT IGNORE INTO cw_error VALUES (?, ?, ?, ?, 0, ?)');
+			'INSERT IGNORE INTO cw_error VALUES (?, ?, ?, 0, ?,?)');
 	}
 	else {
 		$sth = $dbh->prepare(
-			'INSERT IGNORE INTO cw_dumpscan VALUES (?, ?, ?, ?, 0, ?)');
+			'INSERT IGNORE INTO cw_dumpscan VALUES (?, ?, ?, 0, ?, ?)');
 	}
 
-	$sth->execute( $project, $title, $code, $notice, $time_found );
+	$sth->execute( $title, $code, $notice, $time_found, $projectno );
 
 	return ();
 }

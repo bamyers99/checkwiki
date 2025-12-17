@@ -127,7 +127,7 @@ sub get_projects {
 
     print "Load projects from db\n";
 
-    my $sth = $dbh->prepare('SELECT project FROM cw_overview ORDER BY project;')
+    my $sth = $dbh->prepare('SELECT id FROM cw_overview ORDER BY project;')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute
       or die "Cannot execute: $sth->errstr\n";
@@ -156,18 +156,18 @@ sub cw_overview_errors_update_done {
 
         my $sth = $dbh->prepare(
             q{UPDATE cw_overview_errors, (
-            SELECT a.project, a.id , b.done FROM cw_overview_errors a
+            SELECT a.projectno, a.id , b.done FROM cw_overview_errors a
             LEFT OUTER JOIN (
-            SELECT COUNT(*) done , error id , project
-            FROM cw_error WHERE ok = 1 AND project = ? 
-            GROUP BY project, error
+            SELECT COUNT(*) done , error id , projectno
+            FROM cw_error WHERE ok = 1 AND projectno = ? 
+            GROUP BY projectno, error
             ) b
-            ON a.project = b.project AND a.project = ? 
+            ON a.projectno = b.projectno AND a.projectno = ? 
             AND a.id = b.id
             ) basis
             SET cw_overview_errors.done = basis.done
-            WHERE cw_overview_errors.project = basis.project
-            AND cw_overview_errors.project = ? 
+            WHERE cw_overview_errors.projectno = basis.projectno
+            AND cw_overview_errors.projectno = ? 
             AND cw_overview_errors.id = basis.id
           ;}
         ) or die "Can not prepare statement: $DBI::errstr\n";
@@ -193,22 +193,22 @@ sub cw_overview_errors_update_error_number {
 
         my $sth = $dbh->prepare(
             q{UPDATE cw_overview_errors, (
-            SELECT a.project, a.id, b.errors errors  
+            SELECT a.projectno, a.id, b.errors errors  
             FROM cw_overview_errors a
             LEFT OUTER JOIN (
-            SELECT COUNT( *) errors, error id , project
+            SELECT COUNT( *) errors, error id , projectno
             FROM cw_error 
             WHERE ok = 0
-            AND project = ? 
-            GROUP BY project, error
+            AND projectno = ? 
+            GROUP BY projectno, error
             ) b
-            ON a.project = b.project
-            AND a.project = ? 
+            ON a.projectno = b.projectno
+            AND a.projectno = ? 
             AND a.id = b.id
             ) basis
             SET cw_overview_errors.errors = basis.errors
-            WHERE cw_overview_errors.project = basis.project
-            AND cw_overview_errors.project = ? 
+            WHERE cw_overview_errors.projectno = basis.projectno
+            AND cw_overview_errors.projectno = ? 
             AND cw_overview_errors.id = basis.id
           ;} )
           or die "Can not prepare statement: $DBI::errstr\n";
@@ -232,11 +232,11 @@ sub cw_overview_update_done {
 
     my $sth = $dbh->prepare (
         q{UPDATE cw_overview, (
-        SELECT IFNULL(sum(done),0) done, project
-        FROM cw_overview_errors GROUP BY project
+        SELECT IFNULL(sum(done),0) done, projectno
+        FROM cw_overview_errors GROUP BY projectno
         ) basis
         SET cw_overview.done = basis.done
-         WHERE cw_overview.project = basis.project
+         WHERE cw_overview.id = basis.projectno
       ;} )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute
@@ -258,11 +258,11 @@ sub cw_overview_update_error_number {
 
     my $sth = $dbh->prepare(
         q{ update cw_overview, (
-        SELECT IFNULL(sum(errors),0) errors, project
-        FROM cw_overview_errors GROUP BY project
+        SELECT IFNULL(sum(errors),0) errors, projectno
+        FROM cw_overview_errors GROUP BY projectno
         ) basis
         SET cw_overview.errors = basis.errors
-        WHERE cw_overview.project = basis.project
+        WHERE cw_overview.id = basis.projectno
       ;} )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute
