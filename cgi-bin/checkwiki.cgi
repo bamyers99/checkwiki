@@ -2211,20 +2211,21 @@ sub get_all_error_of_article {
         $result .= '<td class="table" style="text-align:right;">';
 
         if ( $ok_sql eq '0' ) {
-            $result .=
-                '<a href="'
-              . $script_name
-              . '?project='
-              . $param_project
-              . '&amp;view=detail&amp;id='
-              . $error_sql
-              . '&amp;title='
-              . $title_sql_amp
-              . '">Done</a>';
+	        my $extra = 
+	            $script_name
+	          . '?project='
+	          . 'rejectbot'
+	          . '&amp;view=detail&amp;id='
+	          . $error_sql
+	          . '&amp;title='
+	          . $title_sql_amp;
+	                  
+        	$result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">Done</a>';
         }
         else {
             $result .= 'ok';
         }
+        
         $result .= '</td>';
         $result .= '</tr>' . "\n";
 
