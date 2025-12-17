@@ -58,6 +58,7 @@ $param_view =~ s/[^a-z0-9]/_/g;
 $param_project =~ s/[^a-z]/_/g;
 $param_title =~ s/[#<>\[\]\|\{\}_\n\r\t]/_/g;
 my $param_projectno = 0;
+my $sql;
 
 if ( $param_id ne q{} ) {
     $param_id = 1 if ( $param_id !~ /^[+-]?\d+$/ );
@@ -94,7 +95,7 @@ my $column_sort    = q{};
 
 if ( $param_orderby ne q{} ) {
     if (    $param_orderby ne 'article'
-        and $param_orderby ne 'notice'
+        # and $param_orderby ne 'notice'
         and $param_orderby ne 'id'
         and $param_orderby ne 'description'
         and $param_orderby ne 'priority'
@@ -124,6 +125,10 @@ my $lang;
 my $lang_dir = "\n\n" . '<table class="table">';
 my $bidi = 0;
 
+if ($param_project eq q{rejectbot}) {
+	exit;
+}
+
 if ( $param_project eq q{} ) {
     $lang = 'en';
 }
@@ -143,7 +148,7 @@ if ($param_project ne q{}) {
 'SELECT id FROM cw_overview WHERE project= ?;' )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $param_project )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     $sth->bind_col( 1, \$param_projectno );
 
@@ -273,7 +278,7 @@ if (    $param_project ne q{}
     my $sth = $dbh->prepare('UPDATE cw_error SET ok=1 WHERE Title=? AND error=? AND projectno=?')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $param_title, $param_id, $param_projectno )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 }
 
 ###########################################################################
@@ -338,13 +343,17 @@ if (    $param_project ne q{}
       . '&amp;offset='
       . $offset_lower
       . '">List for bots</a> - ';
-    print '<a href="'
-      . $script_name
+            
+    my $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=alldone&amp;id='
-      . $param_id
-      . '">Set all articles as done!</a>';
+      . $param_id;
+        
+    print '<a href="' . $param_project . '" data-payload="' . $extra . '">Set all articles as done!</a>';
+      
+      
     print '</p>' . "\n";
 
 ###########################################################################
@@ -663,7 +672,7 @@ if (    $param_project ne q{}
         'SELECT title FROM cw_error WHERE Title= ? AND projectno= ? limit 1;')
       or die "Problem with statement: $DBI::errstr\n";
     $sth->execute( $param_title, $param_projectno )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my $title_sql;
     $sth->bind_col( 1, \$title_sql );
@@ -778,7 +787,23 @@ sub begin_html {
 
     if ( $param_view ne 'bots' ) {
         print '<link rel="stylesheet" href="../css/style.css" type="text/css" />' . "\n";
+    	print "<script type='text/javascript' src='../css/jquery-2.1.1.min.js'></script>";
+    
+	    print '
+	    	<script type="text/javascript">
+				$( document ).ready(function() {
+					$( "a[data-payload]" ).click( function() {
+						var todo = $( this ).attr( "href" );
+						var payload = $( this ).attr( "data-payload" );
+						payload = payload.replace("rejectbot", todo);
+						window.location = payload;
+						return false;
+					} );
+				});
+			</script>
+	    ';
     }
+    
     print "</head>\n";
     print "<body>\n\n";
     print "<h1>Check Wikipedia</h1>\n\n" if ( $param_view ne 'bots' );
@@ -840,7 +865,7 @@ sub get_projects {
           . $column_sort . q{;} )
         or die "Problem with statement: $DBI::errstr\n";
     $sth->execute
-        or die "Cannot execute: $sth->errstr\n";
+        or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $id_sql, $project_sql, $errors_sql, $done_sql, $lang_sql, $page_sql, $trans_sql, $lastdump_sql, $dumpdate_sql);
         $sth->bind_col( 1, \$id_sql );
@@ -923,7 +948,7 @@ sub get_number_of_error {
         'SELECT count(*) FROM cw_error WHERE ok=0 AND error= ? AND projectno= ?;')
       or die "Problem with statement: $DBI::errstr\n";
     $sth->execute( $error, $param_projectno )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     $result = $sth->fetchrow();
 
@@ -946,7 +971,7 @@ sub get_number_of_ok_of_error {
         'SELECT count(*) FROM cw_error WHERE ok=1 AND error= ? AND projectno= ?;')
       or die "Problem with statement: $DBI::errstr\n";
     $sth->execute( $error, $param_projectno )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     $result = $sth->fetchrow();
 
@@ -970,7 +995,7 @@ sub project_info {
     FROM cw_overview WHERE project= ? limit 1;} )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute($project)
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $project_sql,  $wikipage_sql, $translation_sql, $lastdump_sql, $dumpdate_sql, $lastupdate_sql);
     $sth->bind_col( 1, \$project_sql );
@@ -1031,7 +1056,7 @@ sub get_number_of_prio {
 'SELECT IFNULL(sum(errors),0), prio, IFNULL(sum(done),0)  FROM cw_overview_errors WHERE project= ? GROUP BY prio HAVING prio > 0 ORDER BY prio;' )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute($param_project)
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my $sum_of_all    = 0;
     my $sum_of_all_ok = 0;
@@ -1175,7 +1200,7 @@ sub get_number_error_and_desc_by_prio {
             . $column_sort . ', name;' )
           or die "Problem with statement: $DBI::errstr\n";
         $sth->execute( $prio, $param_project )
-          or die "Cannot execute: $sth->errstr\n";
+          or die "Cannot execute: " . $sth->errstr . "\n";
     }
 
     # SHOW ALL PRIORITIES FROM ONE PROJECT
@@ -1258,7 +1283,7 @@ sub get_number_error_and_desc_by_prio {
             . $column_sort . q{;} ) 
           or die "Problem with statement: $DBI::errstr\n";
         $sth->execute( $param_project )
-          or die "Cannot execute: $sth->errstr\n";
+          or die "Cannot execute: " . $sth->errstr . "\n";
     }
 
     # SHOW ALL PRIORITIES FROM ALL PROJECTS
@@ -1266,7 +1291,7 @@ sub get_number_error_and_desc_by_prio {
         $sth = $dbh->prepare( q{SELECT IFNULL(errors, '') todo, IFNULL(done, '') ok, name, name_trans, id, prio FROM cw_overview_errors ORDER BY name_trans, name;} )
           or die "Problem with statement: $DBI::errstr\n";
         $sth->execute
-          or die "Cannot execute: $sth->errstr\n";
+          or die "Cannot execute: " . $sth->errstr . "\n";
     }
 
     my ( $errors_sql, $done_sql, $ok_sql, $name_sql, $trans_sql,  $id_sql,   $prio_sql);
@@ -1340,7 +1365,7 @@ sub get_headline {
 'SELECT name, name_trans FROM cw_overview_errors WHERE id= ? AND project= ?;' )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $error, $param_project )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $name_sql, $name_trans_sql );
     $sth->bind_col( 1, \$name_sql );
@@ -1376,7 +1401,7 @@ sub get_description {
 'SELECT text, text_trans FROM cw_overview_errors WHERE id= ? AND project= ?;' )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $error, $param_project )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $text_sql, $text_trans_sql );
     $sth->bind_col( 1, \$text_sql );
@@ -1412,7 +1437,7 @@ sub get_prio_of_error {
         'SELECT prio FROM cw_overview_errors WHERE id= ? AND project= ?;')
       or die "Problem with statement: $DBI::errstr\n";
     $sth->execute( $error, $param_project )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     $result = $sth->fetchrow();
 
@@ -1531,30 +1556,30 @@ sub get_article_of_error {
     #------------------- NOTICE
 
     $result .= '<th class="table">Notice';
-    $result .=
-        '<a href="'
-      . $script_name
-      . '?project='
-      . $param_project
-      . '&amp;view=only&amp;id='
-      . $param_id
-      . '&amp;offset='
-      . $param_offset
-      . '&amp;limit='
-      . $param_limit
-      . '&amp;orderby=notice&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
-      . '?project='
-      . $param_project
-      . '&amp;view=only&amp;id='
-      . $param_id
-      . '&amp;offset='
-      . $param_offset
-      . '&amp;limit='
-      . $param_limit
-      . '&amp;orderby=notice&amp;sort=desc">↓</a>';
+#    $result .=
+#        '<a href="'
+#      . $script_name
+#      . '?project='
+#      . $param_project
+#      . '&amp;view=only&amp;id='
+#      . $param_id
+#      . '&amp;offset='
+#      . $param_offset
+#      . '&amp;limit='
+#      . $param_limit
+#      . '&amp;orderby=notice&amp;sort=asc">↑</a>';
+#    $result .=
+#        '<a href="'
+#      . $script_name
+#      . '?project='
+#      . $param_project
+#      . '&amp;view=only&amp;id='
+#      . $param_id
+#      . '&amp;offset='
+#      . $param_offset
+#      . '&amp;limit='
+#      . $param_limit
+#      . '&amp;orderby=notice&amp;sort=desc">↓</a>';
     $result .= '</th>';
 
     #------------------- MORE
@@ -1603,13 +1628,17 @@ sub get_article_of_error {
     $column_orderby = 'title' if ( $column_orderby eq q{} );
 
     # Can't use placeholders for sort
-    my $sth = $dbh->prepare( 'SELECT title, notice, found, project FROM cw_error WHERE error= ? AND projectno= ? AND ok=0 ORDER BY '
+    $sql = 'SELECT title, notice, found, projectno FROM cw_error WHERE error= ? AND projectno= ? AND ok=0 ORDER BY '
           . $column_orderby . q{ } 
           . $column_sort
-          . ' LIMIT ?, ?;' )
+          . ' LIMIT ?, ?;';
+          
+    #print $sql . '<br />';
+
+    my $sth = $dbh->prepare( $sql )
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $title_sql, $notice_sql, $found_sql, $project_sql );
     $sth->bind_col( 1, \$title_sql );
@@ -1625,7 +1654,7 @@ sub get_article_of_error {
 
 #XXXXX
         # AMPERSAND SEPERATES VARIABLES ON URL SEQUENCE. CHANGE TO %26
-        # CHANGE " to %22 and ' to $27
+        # CHANGE " to %22 and ' to %27
         # USE %20 FOR SPACES WHEN ACCESSING NON-WIKIPEDIA LINKS
         my $title_sql_amp = $title_sql;
         $title_sql_amp =~ s/%/%25/g;
@@ -1712,11 +1741,11 @@ sub get_article_of_error {
           . time_string($found_sql) . '</td>';
         $result .=
           '<td class="table" ' . $row_style_main . ' text-align:center;">';
-        $result .=
-            '<a href="'
-          . $script_name
+        
+        my $extra = 
+            $script_name
           . '?project='
-          . $article_project
+          . 'rejectbot'
           . '&amp;view=only&amp;id='
           . $error
           . '&amp;title='
@@ -1727,12 +1756,13 @@ sub get_article_of_error {
           . $param_limit;
 
         if ( $param_orderby ne q{} ) {
-            $result .= '&amp;orderby=' . $param_orderby;
+            $extra .= '&amp;orderby=' . $param_orderby;
         }
         if ( $param_sort ne q{} ) {
-            $result .= '&amp;sort=' . $param_sort;
+            $extra .= '&amp;sort=' . $param_sort;
         }
-        $result .= '">Done</a></td></tr>' . "\n\n";
+        
+        $result .= '<a href="' . $article_project . '" data-payload="' . $extra . '">Done</a></td></tr>' . "\n\n";
 
     }
     
@@ -1887,30 +1917,30 @@ sub get_done_article_of_error {
     #------------------- NOTICE
 
     $result .= '<th class="table">Notice';
-    $result .=
-        '<a href="'
-      . $script_name
-      . '?project='
-      . $param_project
-      . '&amp;view=onlydone&amp;id='
-      . $param_id
-      . '&amp;offset='
-      . $param_offset
-      . '&amp;limit='
-      . $param_limit
-      . '&amp;orderby=notice&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
-      . '?project='
-      . $param_project
-      . '&amp;view=onlydone&amp;id='
-      . $param_id
-      . '&amp;offset='
-      . $param_offset
-      . '&amp;limit='
-      . $param_limit
-      . '&amp;orderby=notice&amp;sort=desc">↓</a>';
+#    $result .=
+#        '<a href="'
+#      . $script_name
+#      . '?project='
+#      . $param_project
+#      . '&amp;view=onlydone&amp;id='
+#      . $param_id
+#      . '&amp;offset='
+#      . $param_offset
+#      . '&amp;limit='
+#      . $param_limit
+#      . '&amp;orderby=notice&amp;sort=asc">↑</a>';
+#    $result .=
+#        '<a href="'
+#      . $script_name
+#      . '?project='
+#      . $param_project
+#      . '&amp;view=onlydone&amp;id='
+#      . $param_id
+#      . '&amp;offset='
+#      . $param_offset
+#      . '&amp;limit='
+#      . $param_limit
+#      . '&amp;orderby=notice&amp;sort=desc">↓</a>';
     $result .= '</th>';
 
     #------------------- FOUND
@@ -1955,26 +1985,26 @@ sub get_done_article_of_error {
 
     if ( $param_project ne 'all' ) {
         $sth = $dbh->prepare(
-            'SELECT title, notice, found, project FROM cw_error
+            'SELECT title, notice, found, projectno FROM cw_error
              WHERE error= ? AND ok=1 AND projectno = ? ORDER BY '
               . $column_orderby . q{ } 
               . $column_sort
               . ' LIMIT ?, ? ;' )
           or die "Can not prepare statement: $DBI::errstr\n";
         $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
-          or die "Cannot execute $sth->errstr\n";
+          or die "Cannot execute: " . $sth->errstr . "\n";
 
     }
     else {
         $sth = $dbh->prepare(
-            'SELECT title, notice, found, project FROM cw_error 
+            'SELECT title, notice, found, projectno FROM cw_error 
              WHERE error= ? AND ok=1 ORDER BY '
               . $column_orderby . q{ } 
               . $column_sort
               . ' LIMIT ?, ? ;' )
           or die "Can not prepare statement: $DBI::errstr\n";
         $sth->execute( $error, $param_offset, $param_limit )
-          or die "Cannot execute: $sth->errstr\n";
+          or die "Cannot execute: " . $sth->errstr . "\n";
     }
 
     my ( $title_sql, $notice_sql, $found_sql, $project_sql );
@@ -2068,7 +2098,7 @@ sub get_article_of_error_for_bots {
 'SELECT title FROM cw_error WHERE error= ? AND projectno= ? AND ok=0 LIMIT ?, ?;')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $error, $param_projectno, $param_offset, $param_limit )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     $result .= '<pre>' . "\n";
 
@@ -2122,7 +2152,7 @@ sub get_all_error_of_article {
 'SELECT error, notice, title, ok FROM cw_error  WHERE title= ? AND Projectno= ? ORDER BY error')
       or die "Can not prepare statement: $DBI::errstr\n";
     $sth->execute( $param_title, $param_projectno )
-      or die "Cannot execute: $sth->errstr\n";
+      or die "Cannot execute: " . $sth->errstr . "\n";
 
     my ( $error_sql, $notice_sql, $title_sql, $ok_sql );
     $sth->bind_col( 1, \$error_sql );
@@ -2136,7 +2166,7 @@ sub get_all_error_of_article {
             'SELECT name_trans FROM cw_overview_errors WHERE project=? and id=?'
         );
         $stt->execute( $param_project, $error_sql )
-          or die "Cannot execute: $stt->errstr\n";
+          or die "Cannot execute: " . $stt->errstr . "\n";
         my @error_description = $stt->fetchrow_array;
 
         my $title_sql_amp = $title_sql;

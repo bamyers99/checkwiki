@@ -286,11 +286,11 @@ sub cw_overview_update_last_update {
 
         my $sth = $dbh->prepare(
             q{-- update last_update
-            UPDATE cw_overview, (SELECT max(found) found, project
-            FROM cw_error WHERE project = ?
+            UPDATE cw_overview, (SELECT max(found) found, projectno
+            FROM cw_error WHERE projectno = ?
             ) basis
             SET cw_overview.last_update = basis.found
-            WHERE cw_overview.project = basis.project
+            WHERE cw_overview.id = basis.projectno
           ;} )
           or die "Can not prepare statement: $DBI::errstr\n";
         $sth->execute($project)
