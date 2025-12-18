@@ -59,6 +59,7 @@ $param_project =~ s/[^a-z]/_/g;
 $param_title =~ s/[#<>\[\]\|\{\}_\n\r\t]/_/g;
 my $param_projectno = 0;
 my $sql;
+my $extra;
 
 if ( $param_id ne q{} ) {
     $param_id = 1 if ( $param_id !~ /^[+-]?\d+$/ );
@@ -95,7 +96,7 @@ my $column_sort    = q{};
 
 if ( $param_orderby ne q{} ) {
     if (    $param_orderby ne 'article'
-        # and $param_orderby ne 'notice'
+        and $param_orderby ne 'notice'
         and $param_orderby ne 'id'
         and $param_orderby ne 'description'
         and $param_orderby ne 'priority'
@@ -344,7 +345,7 @@ if (    $param_project ne q{}
       . $offset_lower
       . '">List for bots</a> - ';
             
-    my $extra = 
+    $extra = 
         $script_name
       . '?project='
       . 'rejectbot'
@@ -1466,11 +1467,11 @@ sub get_article_of_error {
     #------------------- ← 0 bis 25 →
 
     $result .= '<p>';
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1480,14 +1481,16 @@ sub get_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . $param_sort
-      . '">←</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">←</a>';
+      
     $result .= q{ } . $param_offset . ' to ' . $offset_end . q{ };
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1497,56 +1500,66 @@ sub get_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . $param_sort
-      . '">→</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">→</a>';
+
     $result .= ' &nbsp;&nbsp;(';
-    my $result_temp =
-        '<a href="'
-      . $script_name
+    
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit=';
-    my $result_temp_end =
+      
+    my $extra_end =
       '&amp;orderby=' . $param_orderby . '&amp;sort=' . $param_sort;
-    $result .= $result_temp . '25' . $result_temp_end . '">25</a>|';
-    $result .= $result_temp . '50' . $result_temp_end . '">50</a>|';
-    $result .= $result_temp . '100' . $result_temp_end . '">100</a>|';
-    $result .= $result_temp . '200' . $result_temp_end . '">200</a>)';
-    $result .= '</p>';
+      
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '25' . $extra_end . '">25|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '50' . $extra_end . '">50|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '100' . $extra_end . '">100|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '200' . $extra_end . '">200</a>';
+
+    $result .= ')</p>';
 
     #------------------- ARTICLE TITLE
 
     $result .= $lang_dir; 
     $result .= '<tr>';
     $result .= '<th class="table">Article';
-    $result .=
-        '<a href="'
-      . $script_name
+    
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=article&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
+      . '&amp;orderby=article&amp;sort=asc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↑</a>';
+      
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=article&amp;sort=desc">↓</a>';
+      . '&amp;orderby=article&amp;sort=desc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↓</a>';
+      
     $result .= '</th>';
 
     #------------------- EDIT
@@ -1556,30 +1569,35 @@ sub get_article_of_error {
     #------------------- NOTICE
 
     $result .= '<th class="table">Notice';
-#    $result .=
-#        '<a href="'
-#      . $script_name
-#      . '?project='
-#      . $param_project
-#      . '&amp;view=only&amp;id='
-#      . $param_id
-#      . '&amp;offset='
-#      . $param_offset
-#      . '&amp;limit='
-#      . $param_limit
-#      . '&amp;orderby=notice&amp;sort=asc">↑</a>';
-#    $result .=
-#        '<a href="'
-#      . $script_name
-#      . '?project='
-#      . $param_project
-#      . '&amp;view=only&amp;id='
-#      . $param_id
-#      . '&amp;offset='
-#      . $param_offset
-#      . '&amp;limit='
-#      . $param_limit
-#      . '&amp;orderby=notice&amp;sort=desc">↓</a>';
+      
+    $extra = 
+        $script_name
+      . '?project='
+      . 'rejectbot'
+      . '&amp;view=only&amp;id='
+      . $param_id
+      . '&amp;offset='
+      . $param_offset
+      . '&amp;limit='
+      . $param_limit
+      . '&amp;orderby=notice&amp;sort=asc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↑</a>';
+      
+    $extra = 
+        $script_name
+      . '?project='
+      . 'rejectbot'
+      . '&amp;view=only&amp;id='
+      . $param_id
+      . '&amp;offset='
+      . $param_offset
+      . '&amp;limit='
+      . $param_limit
+      . '&amp;orderby=notice&amp;sort=desc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↓</a>';
+      
     $result .= '</th>';
 
     #------------------- MORE
@@ -1589,30 +1607,36 @@ sub get_article_of_error {
     #------------------- FOUND
 
     $result .= '<th class="table">Found';
-    $result .=
-        '<a href="'
-      . $script_name
+    
+      
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=found&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
+      . '&amp;orderby=found&amp;sort=asc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↑</a>';
+      
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=found&amp;sort=desc">↓</a>';
+      . '&amp;orderby=found&amp;sort=desc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↓</a>';
+      
     $result .= '</th>';
 
     #------------------- DONE
@@ -1742,7 +1766,7 @@ sub get_article_of_error {
         $result .=
           '<td class="table" ' . $row_style_main . ' text-align:center;">';
         
-        my $extra = 
+        $extra = 
             $script_name
           . '?project='
           . 'rejectbot'
@@ -1771,11 +1795,11 @@ sub get_article_of_error {
     #------------------- ← 0 bis 25 →
     
     $result .= '<p>';
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1785,14 +1809,16 @@ sub get_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . $param_sort
-      . '">←</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">←</a>';
+      
     $result .= q{ } . $param_offset . ' to ' . $offset_end . q{ };
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=only&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1802,8 +1828,10 @@ sub get_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . $param_sort
-      . '">→</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">→</a>';
+
     $result .= '</p>';
 
     return ($result);
@@ -1827,11 +1855,11 @@ sub get_done_article_of_error {
     #------------------- ← 0 to 25 →
 
     $result .= '<p>';
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1841,14 +1869,16 @@ sub get_done_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . $param_sort
-      . '">←</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">←</a>';
+      
     $result .= q{ } . $param_offset . ' to ' . $offset_end . q{ };
-    $result .=
-        '<a href="'
-      . $script_name
+     
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
@@ -1858,56 +1888,66 @@ sub get_done_article_of_error {
       . '&amp;orderby='
       . $param_orderby
       . '&amp;sort='
-      . '">→</a>';
+      . $param_sort;
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">→</a>';
+
     $result .= ' &nbsp;&nbsp;(';
-    my $result_temp =
-        '<a href="'
-      . $script_name
+    
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit=';
-    my $result_temp_end =
+      
+    my $extra_end =
       '&amp;orderby=' . $param_orderby . '&amp;sort=' . $param_sort;
-    $result .= $result_temp . '25' . $result_temp_end . '">25</a>|';
-    $result .= $result_temp . '50' . $result_temp_end . '">50</a>|';
-    $result .= $result_temp . '100' . $result_temp_end . '">100</a>|';
-    $result .= $result_temp . '200' . $result_temp_end . '">200</a>)';
+      
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '25' . $extra_end . '">25|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '50' . $extra_end . '">50|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '100' . $extra_end . '">100|</a>';
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '200' . $extra_end . '">200</a>';
 
-    $result .= '</p>';
+    $result .= ')</p>';
 
     #------------------- ARTICLE TITLE
 
     $result .= $lang_dir; 
     $result .= '<tr>';
     $result .= '<th class="table">Article';
-    $result .=
-        '<a href="'
-      . $script_name
+    
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=article&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
+      . '&amp;orderby=article&amp;sort=asc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↑</a>';
+      
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=article&amp;sort=desc">↓</a>';
+      . '&amp;orderby=article&amp;sort=desc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↓</a>';
+      
     $result .= '</th>';
 
     #------------------- VERSION
@@ -1946,30 +1986,35 @@ sub get_done_article_of_error {
     #------------------- FOUND
 
     $result .= '<th class="table">Found';
-    $result .=
-        '<a href="'
-      . $script_name
+    
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=found&amp;sort=asc">↑</a>';
-    $result .=
-        '<a href="'
-      . $script_name
+      . '&amp;orderby=found&amp;sort=asc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↑</a>';
+      
+    $extra = 
+        $script_name
       . '?project='
-      . $param_project
+      . 'rejectbot'
       . '&amp;view=onlydone&amp;id='
       . $param_id
       . '&amp;offset='
       . $param_offset
       . '&amp;limit='
       . $param_limit
-      . '&amp;orderby=found&amp;sort=desc">↓</a>';
+      . '&amp;orderby=found&amp;sort=desc';
+       
+    $result .= '<a href="' . $param_project . '" data-payload="' . $extra . '">↓</a>';
+      
     $result .= '</th>';
 
     #------------------- DONE
@@ -2211,7 +2256,7 @@ sub get_all_error_of_article {
         $result .= '<td class="table" style="text-align:right;">';
 
         if ( $ok_sql eq '0' ) {
-	        my $extra = 
+	        $extra = 
 	            $script_name
 	          . '?project='
 	          . 'rejectbot'
