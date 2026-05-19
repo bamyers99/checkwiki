@@ -82,7 +82,7 @@ cw_overview_update_error_number();
 cw_overview_update_last_update();
 
 close_db();
-output_duration_script();
+# output_duration_script();
 
 ##########################################################################
 ## OPEN DATABASE
@@ -150,7 +150,7 @@ sub get_projects {
 sub cw_overview_errors_update_done {
     $time_start = time();
 
-    print "Group and count the done in cw_error -> update cw_overview_error\n";
+    # print "Group and count the done in cw_error -> update cw_overview_error\n";
 
     foreach my $project (@projects) {
 
@@ -175,7 +175,7 @@ sub cw_overview_errors_update_done {
           or die "Cannot execute: $sth->errstr\n";
     }
 
-    output_duration();
+    # output_duration();
 
     return ();
 }
@@ -187,7 +187,7 @@ sub cw_overview_errors_update_done {
 sub cw_overview_errors_update_error_number {
     $time_start = time();
 
-    print "Group and count the error in cw_error -> update cw_overview_error\n";
+    # print "Group and count the error in cw_error -> update cw_overview_error\n";
 
     foreach my $project (@projects) {
 
@@ -216,7 +216,7 @@ sub cw_overview_errors_update_error_number {
           or die "Cannot execute: $sth->errstr\n";
     }
 
-    output_duration();
+    # output_duration();
 
     return ();
 }
@@ -228,7 +228,7 @@ sub cw_overview_errors_update_error_number {
 sub cw_overview_update_done {
     $time_start = time();
 
-    print "Sum done article in cw_overview_errors --> update cw_overview\n";
+    # print "Sum done article in cw_overview_errors --> update cw_overview\n";
 
     my $sth = $dbh->prepare (
         q{UPDATE cw_overview, (
@@ -242,7 +242,7 @@ sub cw_overview_update_done {
     $sth->execute
       or die "Cannot execute: $sth->errstr\n";
 
-    output_duration();
+    # output_duration();
 
     return ();
 }
@@ -254,7 +254,7 @@ sub cw_overview_update_done {
 sub cw_overview_update_error_number {
     $time_start = time();
 
-    print "Sum errors in cw_overview_errors --> update cw_overview\n";
+    # print "Sum errors in cw_overview_errors --> update cw_overview\n";
 
     my $sth = $dbh->prepare(
         q{ update cw_overview, (
@@ -268,7 +268,7 @@ sub cw_overview_update_error_number {
     $sth->execute
       or die "Cannot execute: $sth->errstr\n";
 
-    output_duration();
+    # output_duration();
 
     return ();
 }
@@ -280,7 +280,7 @@ sub cw_overview_update_error_number {
 sub cw_overview_update_last_update {
     $time_start = time();
 
-    print "Update last_update\n";
+    # print "Update last_update\n";
 
     foreach my $project (@projects) {
 
@@ -297,7 +297,7 @@ sub cw_overview_update_last_update {
           or die "Cannot execute: $sth->errstr\n";
     }
 
-    output_duration();
+    # output_duration();
 
     return ();
 }
@@ -308,7 +308,7 @@ sub cw_overview_update_last_update {
 
 sub cw_overview_update_last_change {
 
-    print "Update change\n";
+    # print "Update change\n";
 
     $time_start = time();
 
@@ -347,7 +347,7 @@ sub cw_overview_update_last_change {
           or die "Cannot execute: $sth->errstr\n";
     }
 
-    output_duration();
+    # output_duration();
 
     return ();
 }

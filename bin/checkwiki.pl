@@ -766,7 +766,7 @@ sub scan_pages {
 			set_variables_for_article();
 			$title = $page->title;
 			if ( $title ne q{} ) {
-				update_ui() if ++$artcount % 500 == 0;
+				update_ui() if ++$artcount % 1000 == 0;
 
 				#if ( $artcount > 300500 ) {
 				$page_namespace = 0;
@@ -880,7 +880,7 @@ sub delay_scan {
 		if ( $title ne q{} ) {
 			$text = api_get_text($title);
 			printf( "  %7d articles done\n", $artcount )
-			  if ++$artcount % 500 == 0;
+			  if ++$artcount % 1000 == 0;
 
 			# Article may have been deleted or an empty title
 			if ( defined($text) ) {
