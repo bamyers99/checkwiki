@@ -125,7 +125,7 @@ sub get_projects {
     my $project_counter = 0;
     my $result          = q();
 
-    print "Load projects from db\n";
+    # print "Load projects from db\n";
 
     my $sth = $dbh->prepare('SELECT id FROM cw_overview ORDER BY project;')
       or die "Can not prepare statement: $DBI::errstr\n";

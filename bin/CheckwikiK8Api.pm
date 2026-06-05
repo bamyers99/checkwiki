@@ -41,7 +41,8 @@ sub build_yaml {
 		        "app.kubernetes.io/component" : "jobs",
 		        "app.kubernetes.io/name" : "$jobname",
 		        "jobs.toolforge.org/filelog" : "yes",
-		        "jobs.toolforge.org/emails" : "none"
+		        "jobs.toolforge.org/emails" : "none",
+		        "jobs.toolforge.org/mount-storage" : "all"
     			}
     	},
         "spec" : {
@@ -56,7 +57,8 @@ sub build_yaml {
 			        "app.kubernetes.io/component" : "jobs",
 			        "app.kubernetes.io/name" : "$jobname",
 			        "jobs.toolforge.org/filelog" : "yes",
-			        "jobs.toolforge.org/emails" : "none"
+			        "jobs.toolforge.org/emails" : "none",
+		        	"jobs.toolforge.org/mount-storage" : "all"
 	    			}
     			},
                 "spec" : {
