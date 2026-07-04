@@ -140,6 +140,24 @@ CREATE TABLE `cw_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `cw_supplement`
+--
+
+DROP TABLE IF EXISTS `cw_supplement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cw_supplement` (
+  `ProjectNo` smallint(6) NOT NULL,
+  `Title` varchar(255) NOT NULL,
+  `Type` smallint(6) NOT NULL,
+  `Source` smallint(6) NOT NULL,
+  `Info` varchar(255) NOT NULL,
+  PRIMARY KEY (`ProjectNo`,`Title`,`Type`,`Source`),
+  KEY `Source_index` (`ProjectNo`,`Source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `cw_whitelist`
 --
 
