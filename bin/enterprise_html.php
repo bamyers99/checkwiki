@@ -17,7 +17,12 @@
  https://enterprise.wikimedia.com/docs/snapshot/
  https://enterprise.wikimedia.com/docs/data-dictionary/
  
+ toolforge jobs run enterprisehtml --image php8.4 --command "php bin/enterprise_html.php nlwiki"
+ 
  */
+
+DEFINE('SUPPLEMENT_TYPE_HASREF', 1);
+DEFINE('SUPPLEMENT_SOURCE', 1);
 
 if ($argc < 2) {
     echo 'Usage: enterprise_html.php "project_name or all"';
@@ -77,8 +82,8 @@ function process_project($project_name)
     
     $project_num = $results[0][0];
     
-    $sql = "DELETE FROM cw_supplement WHERE ProjectNo = $project_num AND Source = 1";
-    $dbh_wikidata->exec($sql);
+    $sql = "DELETE FROM cw_supplement WHERE ProjectNo = $project_num AND Source = " . SUPPLEMENT_SOURCE;
+    //$dbh_wikidata->exec($sql);
     
     if ($chunked) {
         // Retrieve the chunk list
@@ -105,7 +110,7 @@ function process_project($project_name)
         $url = "https://api.enterprise.wikimedia.com/v2/snapshots/structured-contents/{$project_name}_namespace_0/download";
         $outfile = 'enterprise_html.tar.gz';
         
-        retrieve_url($url, 'file', $outfile);
+        // retrieve_url($url, 'file', $outfile);
         
         process_chunk($project_num, $outfile);
         
@@ -124,42 +129,44 @@ function process_chunk($project_num, $infile)
 {
     global $dbh_wikidata;
     
+    $sql = "INSERT IGNORE INTO cw_supplement VALUES ($project_num,?," . SUPPLEMENT_TYPE_HASREF . ',' . SUPPLEMENT_SOURCE . ",'')";
+    $sth = $dbh_wikidata->prepare($sql);
+    
     $handle = gzopen($infile, 'rb');
     
     while (!gzeof($handle)) {
         $buffer = gzgets($handle);
         $page = json_decode($buffer, true);
         
-        //$additional_entities = isset($page['additional_entities']) ? $page['additional_entities'] : false;
         $references = isset($page['references']) ? $page['references'] : false;
         
-//        if ($additional_entities === false && $references === false) continue;
+        if ($references === false) continue;
         
-        $has_refs = false;
+//         // See if any wikidata statements were used.
+//         $additional_entities = isset($page['additional_entities']) ? $page['additional_entities'] : false;
         
-        if ($references) $has_refs = true;
-//         else {
-//             foreach ($additional_entities as $entity) {
-//                 foreach ($entity['aspects'] as $aspect) {
-//                     $aspect_type = $aspect[0];
-                    
-//                     if ($aspect_type == 'C' || $aspect_type = 'X') {
-//                         $has_refs = true;
-//                         break 2;
-//                     }
+//         if ($additional_entities === false) continue;
+        
+//         $has_wikidata = false;
+        
+//         foreach ($additional_entities as $entity) {
+//             foreach ($entity['aspects'] as $aspect) {
+//                 $aspect_type = $aspect[0];
+                
+//                 if ($aspect_type == 'C' || $aspect_type = 'X') {
+//                     $has_wikidata = true;
+//                     break 2;
 //                 }
 //             }
 //         }
         
-        if (! $has_refs) continue;
+//         if (! $has_wikidata) continue;
         
-        $sql = "INSERT IGNORE INTO cw_supplement VALUES ($project_num,?,1,1,'')";
-        $sth = $dbh_wikidata->prepare($sql);
         $sth->execute([$page['name']]);
         
-        /* remove */
-        if ($page['name'] == 'Gigi Perez') print_r($page);
-        if ($page['name'] == 'Gigi Perez') break;
+        if ($page['name'] == 'Scheme') print_r($page);
+        
+        if ($page['name'] == 'Scheme') break;
     }
     
     gzclose($handle);

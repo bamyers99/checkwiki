@@ -2364,9 +2364,22 @@ sub error_002_have_br {
 
 sub error_003_have_ref {
 	my $error_code = 3;
-
-	if (   index( $lc_text, '<ref>' ) > -1
-		or index( $lc_text, '<ref name' ) > -1 )
+	my $has_ref = ( $lc_text =~ /<ref(?:>|\s+name)/ );
+	
+	if (! $has_ref)
+	{
+		# Check for transcluded ref
+		
+		my $sth = $dbh->prepare(
+			'SELECT Info FROM cw_supplement WHERE Type=1 AND title= BINARY ? AND ProjectNo=?'); # BINARY = case-sensitive
+		$sth->execute( $title, $projectno );
+	
+		my $supplement = $sth->fetchrow_arrayref();
+	
+		$has_ref = 1 if ( defined($supplement) );
+	}
+	
+	if ( $has_ref )
 	{
 
 		my $test      = 0;
