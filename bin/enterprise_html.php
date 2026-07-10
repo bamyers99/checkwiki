@@ -25,15 +25,18 @@ DEFINE('SUPPLEMENT_TYPE_HASREF', 1);
 DEFINE('SUPPLEMENT_SOURCE', 1);
 
 if ($argc < 2) {
-    echo 'Usage: enterprise_html.php "project_name or all"';
+    echo 'Usage: enterprise_html.php "project_name or monthly"';
     exit;
 }
 
-$all_projects = ['enwiki', 'nlwiki'];
+$daily_projects = ['enwiki', 'dewiki', 'eswiki', 'frwiki', 'arwiki', 'cswiki', 'plwiki', 'bnwiki', 'nlwiki', 'nowiki', 'cawiki', 'hewiki',
+    'ruwiki', 'itwiki', 'ptwiki', 'ukwiki'];
+
+$monthly_projects = ['alswiki', 'barwiki', 'dawiki', 'elwiki' ,'nds_nlwiki' ,'scowiki'];
 
 $project_name = $argv[1];
 
-if ($project_name == 'all') $project_list = $all_projects;
+if ($project_name == 'monthly') $project_list = $monthly_projects;
 else $project_list = [$project_name];
 
 $hndl = fopen('/data/project/checkwiki/checkwiki.cfg', 'r');
@@ -83,7 +86,7 @@ function process_project($project_name)
     $project_num = $results[0][0];
     
     $sql = "DELETE FROM cw_supplement WHERE ProjectNo = $project_num AND Source = " . SUPPLEMENT_SOURCE;
-    //$dbh_wikidata->exec($sql);
+    $dbh_wikidata->exec($sql);
     
     if ($chunked) {
         // Retrieve the chunk list
@@ -97,11 +100,11 @@ function process_project($project_name)
             $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks/$chunk_id/download";
             $outfile = 'enterprise_html_chunk.tar.gz';
             
-            //retrieve_url($url, 'file', $outfile);
+            retrieve_url($url, 'file', $outfile);
             
             process_chunk($project_num, $outfile);
             
-            // unlink($outfile);
+            unlink($outfile);
             /* remove */
             break;
         }
@@ -110,11 +113,11 @@ function process_project($project_name)
         $url = "https://api.enterprise.wikimedia.com/v2/snapshots/structured-contents/{$project_name}_namespace_0/download";
         $outfile = 'enterprise_html.tar.gz';
         
-        // retrieve_url($url, 'file', $outfile);
+        retrieve_url($url, 'file', $outfile);
         
         process_chunk($project_num, $outfile);
         
-        // unlink($outfile);
+        unlink($outfile);
     }
     
 }
@@ -142,31 +145,11 @@ function process_chunk($project_num, $infile)
         
         if ($references === false) continue;
         
-//         // See if any wikidata statements were used.
-//         $additional_entities = isset($page['additional_entities']) ? $page['additional_entities'] : false;
-        
-//         if ($additional_entities === false) continue;
-        
-//         $has_wikidata = false;
-        
-//         foreach ($additional_entities as $entity) {
-//             foreach ($entity['aspects'] as $aspect) {
-//                 $aspect_type = $aspect[0];
-                
-//                 if ($aspect_type == 'C' || $aspect_type = 'X') {
-//                     $has_wikidata = true;
-//                     break 2;
-//                 }
-//             }
-//         }
-        
-//         if (! $has_wikidata) continue;
-        
         $sth->execute([$page['name']]);
         
-        if ($page['name'] == 'Scheme') print_r($page);
+        //if ($page['name'] == 'Scheme') print_r($page);
         
-        if ($page['name'] == 'Scheme') break;
+        //if ($page['name'] == 'Scheme') break;
     }
     
     gzclose($handle);

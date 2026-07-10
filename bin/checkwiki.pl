@@ -1256,10 +1256,13 @@ sub get_tables {
 
 	my $test_text = $text;
 
+	#  An empty template name is allowed, so exclude these.
+	$test_text =~ s/\{\{\s*\|//g;
+	
 	my $tag_open_num = () = $test_text =~ /\{\|/g;
 
 	#  Alot of templates end with |}}, so exclude these.
-	$test_text =~ s/\|\}\}//g;
+	$test_text =~ s/\|\s*\}\}//g;
 	my $tag_close_num = () = $test_text =~ /\|\}/g;
 
 	my $diff = $tag_open_num - $tag_close_num;
@@ -2377,6 +2380,11 @@ sub error_003_have_ref {
 		my $supplement = $sth->fetchrow_arrayref();
 	
 		$has_ref = 1 if ( defined($supplement) );
+	} elsif ( $dumpbig == 1 ) {
+		# delete unneeded supplement
+		my $sth = $dbh->prepare(
+			'DELETE FROM cw_supplement WHERE Type=1 AND title= BINARY ? AND ProjectNo=?'); # BINARY = case-sensitive
+		$sth->execute( $title, $projectno );
 	}
 	
 	if ( $has_ref )
