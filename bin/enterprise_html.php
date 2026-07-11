@@ -71,6 +71,7 @@ foreach ($project_list as $project_name) {
 function process_project($project_name)
 {
     global $dbh_wikidata, $chunked;
+    $responseCode = 0;
     
     // Lookup project id
     $sql = 'SELECT ID FROM cw_overview WHERE Project = ?';
@@ -92,7 +93,7 @@ function process_project($project_name)
         // Retrieve the chunk list
         $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks";
         
-        $chunk_list = retrieve_url($url, 'string');
+        $chunk_list = retrieve_url($url, 'string', $responseCode);
         $chunk_list = json_decode($chunk_list, true);
         
         foreach ($chunk_list as $chunk) {
@@ -100,7 +101,7 @@ function process_project($project_name)
             $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks/$chunk_id/download";
             $outfile = 'enterprise_html_chunk.tar.gz';
             
-            retrieve_url($url, 'file', $outfile);
+            retrieve_url($url, 'file', $outfile, $responseCode);
             
             process_chunk($project_num, $outfile);
             
@@ -113,7 +114,13 @@ function process_project($project_name)
         $url = "https://api.enterprise.wikimedia.com/v2/snapshots/structured-contents/{$project_name}_namespace_0/download";
         $outfile = 'enterprise_html.tar.gz';
         
-        retrieve_url($url, 'file', $outfile);
+        retrieve_url($url, 'file', $outfile, $responseCode);
+        
+        if ($responseCode != 200) {
+            echo "Error retrieving $project_name data: $responseCode\n";
+            unlink($outfile);
+            return;
+        }
         
         process_chunk($project_num, $outfile);
         
@@ -162,7 +169,7 @@ function process_chunk($project_num, $infile)
  * @param string $fetch_type file or string
  * @param string $output_file_path required for type file
  */
-function retrieve_url($url, $fetch_type, $output_file_path = '')
+function retrieve_url($url, $fetch_type, $output_file_path = '', &$responseCode)
 {
     $ch = curl_init();
     
@@ -178,7 +185,11 @@ function retrieve_url($url, $fetch_type, $output_file_path = '')
     
     $page = curl_exec($ch);
     
+    $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    
     if ($fetch_type == 'file') fclose($fp);
+    
+    curl_close($ch);
     
     return $page;
 }
