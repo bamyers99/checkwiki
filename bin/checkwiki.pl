@@ -2369,24 +2369,6 @@ sub error_003_have_ref {
 	my $error_code = 3;
 	my $has_ref = ( $lc_text =~ /<ref(?:>|\s+name)/ );
 	
-	if (! $has_ref)
-	{
-		# Check for transcluded ref
-		
-		my $sth = $dbh->prepare(
-			'SELECT Info FROM cw_supplement WHERE Type=1 AND title= BINARY ? AND ProjectNo=?'); # BINARY = case-sensitive
-		$sth->execute( $title, $projectno );
-	
-		my $supplement = $sth->fetchrow_arrayref();
-	
-		$has_ref = 1 if ( defined($supplement) );
-	} elsif ( $dumpbig == 1 ) {
-		# delete unneeded supplement
-		my $sth = $dbh->prepare(
-			'DELETE FROM cw_supplement WHERE Type=1 AND title= BINARY ? AND ProjectNo=?'); # BINARY = case-sensitive
-		$sth->execute( $title, $projectno );
-	}
-	
 	if ( $has_ref )
 	{
 
