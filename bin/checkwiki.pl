@@ -31,6 +31,7 @@ use POSIX qw(strftime);
 
 use Business::ISBN qw( valid_isbn_checksum );
 use MediaWiki::API;
+use LWP::UserAgent;
 
 # use MediaWiki::Bot; does not support rvslots API parameter
 
@@ -58,6 +59,8 @@ my $artcount    = 0;       # Number of articles processed
 my $file_size   = 0;       # How many MB of the dump has been processed.
 my $mediawiki_api;
 my $dumpbig = 0;
+my $rendered_ua = LWP::UserAgent->new;
+my $rendered_url = '';
 
 # Database configuration
 my $DbName;
@@ -626,6 +629,8 @@ sub readMetadata {
 	}
 
 	($Language) = $ServerName =~ /^([[:lower:]]*)/;
+	
+	$rendered_url = "https://$ServerName/wiki/";
 
 	my $sth = $dbh->prepare(
 		'SELECT Metaparam, Templates FROM cw_meta WHERE Project = ?');
@@ -2367,44 +2372,51 @@ sub error_002_have_br {
 
 sub error_003_have_ref {
 	my $error_code = 3;
-	my $has_ref = ( $lc_text =~ /<ref(?:>|\s+name)/ );
+	my $has_ref = ( $lc_text =~ /<ref(?:\s*>|\s+name)/ );
+	my $has_reflist = 0;
 	
-	if ( $has_ref )
+	$has_reflist = 1 if ( $lc_text =~ /<\s*+references\s*+(?:\/>|>|group|responsive)/ );
+	$has_reflist = 1 if ( $lc_text =~ /\{\{\s*ref(?:list|begin|end)/ );
+	
+	# hrwiki doesn't have a translation file
+	if ( $project eq 'hrwiki' ) {
+		if ( $lc_text =~ /\{\{\s*+izvori/ ) {
+			$has_reflist = 1;
+		}
+	}
+	
+	if ( $has_reflist == 0 and $Template_list[$error_code][0] ne '-9999' ) {
+	
+		foreach my $regex (@REGEX_003) {
+			if ( $text =~ /$regex/ ) {    # non lc text
+				$has_reflist = 1;
+				last;
+			}
+		}
+	}
+	
+	if ($has_ref == 0 and $has_reflist == 0)
 	{
-
-		my $test      = 0;
-		my $test_text = $lc_text;
-
-		$test = 1
-		  if (  $test_text =~ /<[ ]?+references\s*>/
-			and $test_text =~ /<[ ]?+\/references\s*>/ );
-		$test = 1 if ( $test_text =~ /<[ ]?+references[ ]?+\/>/ );
-		$test = 1 if ( $test_text =~ /<[ ]?+references\s+group/ );
-		$test = 1 if ( $test_text =~ /<[ ]?+references\s+responsive/ );
-		$test = 1 if ( $test_text =~ /\{\{[ ]?+refbegin/ );
-		$test = 1 if ( $test_text =~ /\{\{[ ]?+refend/ );
-		$test = 1 if ( $test_text =~ /\{\{[ ]?+reflist/ );
-
-		# hrwiki doesn't have a translation file
-		if ( $project eq 'hrwiki' ) {
-			if ( $test_text =~ /\{\{[ ]?+izvori/ ) {
-				$test = 1;
+		# Check for transcluded ref
+		
+		my $sth = $dbh->prepare(
+			'SELECT Info FROM cw_supplement WHERE Type=1 AND title= BINARY ? AND ProjectNo=?'); # BINARY = case-sensitive
+		$sth->execute( $title, $projectno );
+	
+		my $supplement = $sth->fetchrow_arrayref();
+	
+		if ( defined($supplement) ) {
+			# retrieve the current rendered html
+			my $response = $rendered_ua->get($rendered_url . $title);
+			
+			if ($response->code == 200) {
+				$has_ref = ($response->content =~ /<div\s+class\s*=\s*"[^"]*mw-references-wrap/);
 			}
 		}
-
-		if ( $test == 0 and $Template_list[$error_code][0] ne '-9999' ) {
-
-			foreach my $regex (@REGEX_003) {
-				if ( $text =~ /$regex/ ) {    # non lc text
-					$test = 1;
-					last;
-				}
-			}
-		}
-
-		if ( $test == 0 ) {
-			error_register( $error_code, q{} );
-		}
+	}
+	
+	if ( $has_ref == 1 and $has_reflist == 0 ) {
+		error_register( $error_code, q{} );
 	}
 
 	return ();

@@ -41,7 +41,8 @@ else $project_list = [$project_name];
 
 $hndl = fopen('/data/project/checkwiki/checkwiki.cfg', 'r');
 $config = [];
-$chunked = false;
+$add_count = 0;
+$article_count = 0;
 
 while (! feof($hndl)) {
     $buffer = rtrim(fgets($hndl));
@@ -63,6 +64,8 @@ foreach ($project_list as $project_name) {
     process_project($project_name);
 }
 
+echo "Article count: $article_count  Add count: $add_count\n";
+
 /**
  * Process a project
  * 
@@ -80,7 +83,7 @@ function process_project($project_name)
     $results = $sth->fetchAll(PDO::FETCH_NUM);
     
     if (count($results) != 1) {
-        echo "Project not found = $project_name\n";
+        fputs(STDERR, "Project not found = $project_name\n");
         return;
     }
     
@@ -89,35 +92,26 @@ function process_project($project_name)
     $sql = "DELETE FROM cw_supplement WHERE ProjectNo = $project_num AND Source = " . SUPPLEMENT_SOURCE;
     $dbh_wikidata->exec($sql);
     
-    if ($chunked) {
-        // Retrieve the chunk list
-        $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks";
-        
-        $chunk_list = retrieve_url($url, 'string', $responseCode);
-        $chunk_list = json_decode($chunk_list, true);
-        
-        foreach ($chunk_list as $chunk) {
-            $chunk_id = $chunk['identifier'];
-            $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks/$chunk_id/download";
-            $outfile = 'enterprise_html_chunk.tar.gz';
-            
-            retrieve_url($url, 'file', $outfile, $responseCode);
-            
-            process_chunk($project_num, $outfile);
-            
-            unlink($outfile);
-            /* remove */
-            break;
-        }
-    } else {
-        // Use beta complete file
-        $url = "https://api.enterprise.wikimedia.com/v2/snapshots/structured-contents/{$project_name}_namespace_0/download";
-        $outfile = 'enterprise_html.tar.gz';
+    // Retrieve the chunk list
+    $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks";
+    
+    $chunk_list = retrieve_url($url, 'string', '', $responseCode);
+    if ($responseCode != 200) {
+        fputs(STDERR, "Error retrieving $project_name chunk list: $responseCode\n");
+        return;
+    }
+    
+    $chunk_list = json_decode($chunk_list, true);
+    
+    foreach ($chunk_list as $chunk) {
+        $chunk_id = $chunk['identifier'];
+        $url = "https://api.enterprise.wikimedia.com/v2/snapshots/{$project_name}_namespace_0/chunks/$chunk_id/download";
+        $outfile = 'enterprise_html_chunk.tar.gz';
         
         retrieve_url($url, 'file', $outfile, $responseCode);
         
         if ($responseCode != 200) {
-            echo "Error retrieving $project_name data: $responseCode\n";
+            fputs(STDERR, "Error retrieving $project_name $chunk_id data: $responseCode\n");
             unlink($outfile);
             return;
         }
@@ -125,8 +119,9 @@ function process_project($project_name)
         process_chunk($project_num, $outfile);
         
         unlink($outfile);
+        /* remove */
+        //break;
     }
-    
 }
 
 /**
@@ -137,26 +132,47 @@ function process_project($project_name)
  */
 function process_chunk($project_num, $infile)
 {
-    global $dbh_wikidata;
+    global $dbh_wikidata, $add_count, $article_count;
+    static $skip_regexes = [
+        '/<ref(?:\s*>|\s+name)/i',
+        '/<\s*+references\s*+(?:\/>|>|group|responsive)/i',
+        '/\{\{\s*ref(?:begin|end|list)/i'
+    ];
     
-    $sql = "INSERT IGNORE INTO cw_supplement VALUES ($project_num,?," . SUPPLEMENT_TYPE_HASREF . ',' . SUPPLEMENT_SOURCE . ",'')";
+    $sql = "INSERT IGNORE INTO cw_supplement VALUES ($project_num,BINARY ?," . SUPPLEMENT_TYPE_HASREF . ',' . SUPPLEMENT_SOURCE . ",'')";
     $sth = $dbh_wikidata->prepare($sql);
     
     $handle = gzopen($infile, 'rb');
     
     while (!gzeof($handle)) {
+        ++$article_count;
         $buffer = gzgets($handle);
         $page = json_decode($buffer, true);
         
-        $references = isset($page['references']) ? $page['references'] : false;
+        $wikitext_body = isset($page['article_body']['wikitext']) ? $page['article_body']['wikitext'] : false;
         
-        if ($references === false) continue;
+        if ($wikitext_body === false) continue;
+        
+        foreach ($skip_regexes as $skip_regex) {
+            if (preg_match($skip_regex, $wikitext_body)) continue 2;
+        }
+        
+        $html_body = isset($page['article_body']['html']) ? $page['article_body']['html'] : false;
+        
+        if ($html_body === false) continue;
+        
+        // Look for <div class="mw-references-wrap"
+        
+        $found_class = preg_match('/<div\s+class\s*=\s*"[^"]*mw-references-wrap/', $html_body);
+        
+        if (! $found_class) continue;
         
         $sth->execute([$page['name']]);
+        ++$add_count;
         
-        //if ($page['name'] == 'Scheme') print_r($page);
+        //if ($page['name'] == 'Académie') print_r($page);
         
-        //if ($page['name'] == 'Scheme') break;
+        //if ($page['name'] == 'Académie') exit;
     }
     
     gzclose($handle);
