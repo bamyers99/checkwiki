@@ -32,7 +32,7 @@ if ($argc < 2) {
 $daily_projects = ['enwiki', 'dewiki', 'eswiki', 'frwiki', 'arwiki', 'cswiki', 'plwiki', 'bnwiki', 'nlwiki', 'nowiki', 'cawiki', 'hewiki',
     'ruwiki', 'itwiki', 'ptwiki', 'ukwiki'];
 
-$monthly_projects = ['alswiki', 'barwiki', 'dawiki', 'elwiki' ,'nds_nlwiki' ,'scowiki'];
+$monthly_projects = ['alswiki', 'barwiki', 'dawiki', 'elwiki' ,'nds_nlwiki' ,'scowiki','skwiki'];
 
 $project_name = $argv[1];
 
