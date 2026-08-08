@@ -4856,10 +4856,19 @@ sub error_095_user_signature {
 
 	if ( $lc_text =~ /$REGEX_095/o ) {
 		my $pos = $-[0];
-		if ( $lc_text !~ /\{\{\s*under construction/ )
-		{    # ignore template 'Under construction'
-			error_register( $error_code, substr( $text, $pos, 40 ) );
+		
+		if ( $Template_list[$error_code][0] ne '-9999' ) {
+			foreach my $skip_template ( @{ $Template_list[$error_code] } ) {
+				{
+					use bytes;
+					$skip_template = lc($skip_template);
+					utf8::decode($skip_template);
+				}
+				return () if ( $lc_text =~ /\{\{\s*$skip_template/ );
+			}
 		}
+		
+		error_register( $error_code, substr( $text, $pos, 40 ) );
 	}
 
 	return ();
