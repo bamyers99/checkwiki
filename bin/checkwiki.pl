@@ -1537,7 +1537,7 @@ sub get_templates_all {
 
 			last
 			  if ( $brackets_begin == $brackets_end
-				|| abs( $brackets_begin - $brackets_end ) > 25 );
+				|| abs( $brackets_begin - $brackets_end ) > 100 );
 		}
 
 		if ( $brackets_begin == $brackets_end ) {
