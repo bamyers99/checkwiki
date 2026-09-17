@@ -4182,9 +4182,6 @@ sub error_069_isbn_wrong_syntax {
 		elsif ( $text =~ /\[https?:\/\/[^\]]*(ISBN \d[^\]]*\])/ ) {
 			error_register( $error_code, substr( $text, $-[0], 40 ) );
 		}
-		elsif ( $text =~ /ISBN\.\s*\d/ ) {
-			error_register( $error_code, substr( $text, $-[0], 40 ) );
-		}
 
 	}
 
