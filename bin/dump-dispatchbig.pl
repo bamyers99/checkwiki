@@ -55,7 +55,7 @@ sub FindLatestDump {
     }
 
     if ( $Filenames[-1] !~
-		m!/public/dumps/public/other/mediawiki_content_current/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/xml/bzip2/SHA256SUMS!
+		m!/public/dumps/public/other/mediawiki_content_current/\Q$project\E/((\d{4})-(\d{2})-(\d{2}))*/xml/bzip2/SHA256SUMS!
       )
     {
         die( 'Could not parse filename: ' . $Filenames[-1] . "\n" );
