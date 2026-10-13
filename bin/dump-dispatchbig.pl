@@ -49,13 +49,13 @@ sub FindLatestDump {
 
     # the 2 is in the file search to weed out the 'latest' directory which sorts last
     my @Filenames =
-      </public/dumps/public/$project/2*/$project-*-pages-articles.xml.bz2>;
+      glob("/public/dumps/public/other/mediawiki_content_current/$project/2*/xml/bzip2/SHA256SUMS");
     if ( !@Filenames ) {
         return undef;
     }
 
     if ( $Filenames[-1] !~
-m!/public/dumps/public/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/\Q$project\E-\1-pages-articles.xml.bz2!
+		m!/public/dumps/public/other/mediawiki_content_current/\Q$project\E/((\d{4})(\d{2})(\d{2}))*/xml/bzip2/SHA256SUMS!
       )
     {
         die( 'Could not parse filename: ' . $Filenames[-1] . "\n" );

@@ -756,32 +756,51 @@ sub scan_pages {
 	my $page = q{};
 
 	if ( $Dump_or_Live eq 'dump' ) {
+		my @chunks = ($DumpFilename);
+		
+		# Grab the chunk filenames
+		
+		if ($DumpFilename =~ /SHA256SUMS/) {
+			@chunks = ();
+			my $dirpath = $DumpFilename;
+			my $pos  = rindex($dirpath, '/');
+			$dirpath = substr($dirpath, 0, $pos + 1);
+			
+			open(my $fh, '<:encoding(UTF-8)', $DumpFilename) or die "Could not open '$DumpFilename': $!";
 
-		$pages = MediaWiki::DumpFile::Pages->new($DumpFilename);
-
-		# CHECK FILE_SIZE IF ONLY UNCOMPRESSED
-		if ( $DumpFilename !~ /(?:.*?)\.xml\.bz2$/ ) {
-			$file_size = ( stat($DumpFilename) )[7];
+			while (my $line = <$fh>) {
+			    chomp($line);
+			    $line = (split(' ', $line))[-1];
+			    push(@chunks, $dirpath . $line);
+			}
+			
+			close($fh);
 		}
 
-		while ( defined( $page = $pages->next ) && $end_of_dump eq 'no' ) {
-			next if ( $page->namespace ne '0' );    #NS=0 IS ARTICLE NAMESPACE
-			set_variables_for_article();
-			$title = $page->title;
-			if ( $title ne q{} ) {
-				update_ui() if ++$artcount % 1000 == 0;
+		foreach my $filepath (@chunks) {
 
-				#if ( $artcount > 300500 ) {
-				$page_namespace = 0;
-				$text           = $page->revision->text;
-				check_article();
-
+			$pages = MediaWiki::DumpFile::Pages->new($filepath);
+	
+			while ( defined( $page = $pages->next ) && $end_of_dump eq 'no' ) {
+				next if ( $page->namespace ne '0' );    #NS=0 IS ARTICLE NAMESPACE
+				set_variables_for_article();
+				$title = $page->title;
+				
+				if ( $title ne q{} ) {
+					update_ui() if ++$artcount % 1000 == 0;
+	
+					#if ( $artcount > 300500 ) {
+					$page_namespace = 0;
+					$text           = $page->revision->text;
+					check_article();
+	
+				}
+	
+				#$end_of_dump = 'yes' if ( $artcount > 1000 );
+	
+				#$end_of_dump = 'yes' if ( $Error_counter > 40000 )
+				#}
 			}
-
-			#$end_of_dump = 'yes' if ( $artcount > 1000 );
-
-			#$end_of_dump = 'yes' if ( $Error_counter > 40000 )
-			#}
 		}
 	}
 
@@ -5608,7 +5627,7 @@ if ( $load_mode eq 'dump' || $load_mode eq 'dumpbig' ) {
 	# GET DATE FROM THE DUMP FILENAME
 	$dump_date_for_output = $DumpFilename;
 	$dump_date_for_output =~
-s/^(?:.*\/)?\Q$project\E-(\d{4})(\d{2})(\d{2})-pages-articles\.xml(.*?)$/$1-$2-$3/;
+s/^(?:.*\/)?\Q$project\E\/(\d{4})-(\d{2})-(\d{2})\/xml(.*?)$/$1-$2-$3/;
 }
 elsif ( $load_mode eq 'live' )    { $Dump_or_Live = 'live'; }
 elsif ( $load_mode eq 'delay' )   { $Dump_or_Live = 'delay'; }
